@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,13 @@ namespace ImgTableDataExporter
 	/// </summary>
 	public class TableGenerator
 	{
+		/// <summary>
+		/// Stores every cell within the table, the table is structured per cell (see <see cref="TableCell.TablePosition"/>) so the order of the list does not matter. Changes made to this list will update any <see cref="TableColumn"/> and <see cref="TableRow"/> automatically.<br/><br/>
+		/// 
+		/// Cells should only be added to this if the cell belongs to this table. (Where <see cref="TableCell.Parent"/> is this <see cref="TableGenerator"/> instance).<br/><br/>
+		/// 
+		/// The exception <see cref="TableMismatchException"/> is thrown where any value in the provided list contains a cell which belongs to a different table.
+		/// </summary>
 		public ObservableCollection<TableCell> Cells
 		{
 			get => _cells;
@@ -31,6 +39,15 @@ namespace ImgTableDataExporter
 				if (value is null)
 				{
 					throw new ArgumentNullException("The table cannot be set to null.");
+				}
+
+				// Check that the cell belongs to this table.
+				foreach (TableCell cell in value)
+				{
+					if (!cell.Parent.Equals(this))
+					{
+						throw new TableMismatchException(cell, this); 
+					}
 				}
 
 				_cells = value;
@@ -108,8 +125,27 @@ namespace ImgTableDataExporter
 			Load(csvStream);
 		}
 
-		private void Cells_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		/// <summary>
+		/// Updates each <see cref="TableRow"/> and <see cref="TableColumn"/> object linked to this table as well as checking if the newly added cells
+		/// </summary>
+		/// <exception cref="TableMismatchException">Thrown when any newly added items to the list <see cref="Cells"/> belongs to the wrong table.</exception>
+		private void Cells_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
+			// Check that the new cells belong to this table.
+			if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Replace)
+			{
+				foreach (object item in e.NewItems)
+				{
+					TableCell cell = (TableCell)item;
+
+					if (!cell.Parent.Equals(this))
+					{
+						throw new TableMismatchException(cell, this);
+					}
+				}
+			}			
+
+			// Updates each linked TableRow and TableColumn linked to the table. This will notify each TableRow and TableColumn object to call their own Refresh() methods. (Provided in the interface ITableCollection interface).
 			TableStructureChanged_Event(null, null);
 		}
 
@@ -175,7 +211,7 @@ namespace ImgTableDataExporter
 		public TableCell CreateNewCell(Vector2I tablePosition, string data, Size cellSize, Font font = null, Color? textBG = null, Color? BG = null) => new TableCell(this, tablePosition, data, cellSize, font, textBG, BG);
 
 		/// <summary>
-		/// 
+		/// Loads a list of created cells.
 		/// </summary>
 		/// <param name="cells"></param>
 		public void Load(TableCell[] cells)
@@ -183,9 +219,31 @@ namespace ImgTableDataExporter
 			Cells = new ObservableCollection<TableCell>(cells);
 		}
 		
+		/// <summary>
+		/// Gets a collection of cells apart of this table where the cells are on row <paramref name="index"/>.<br/>
+		/// The <see cref="TableRow.Cells"/> list is a read only collection of cells from this table which are on the row specified by <see cref="TableRow.RowNumber"/>, (set to <paramref name="index"/>).<br/><br/>
+		/// 
+		/// Whenever the table has been changed (cells added, removed or positions modified) every <see cref="TableColumn"/> linked to this table will be updated.<br/><br/>
+		/// This is useful as if you want to set a universal property for every cell on a row (such as <see cref="TableCell.BG"/>) you can set <see cref="TableRow.RowBG"/> which will update each cell's BG property on that row.
+		/// </summary>
+		/// <param name="index">The row to retrieve.</param>
+		/// <returns>An iterable collection of cells where each cell is on the row according to <see cref="TableRow.RowNumber"/></returns>
 		public TableRow GetRow(int index) => TableRow.FromTable(this, index);
+
+		/// <summary>
+		/// Gets a collection of cells apart of this table where the cells are in column <paramref name="index"/>.<br/>
+		/// The <see cref="TableColumn.Cells"/> list is a read only collection of cells from this table which are in the column specified by <see cref="TableColumn.ColumnNumber"/>, (set to <paramref name="index"/>).<br/><br/>
+		/// 
+		/// Whenever the table has been changed (cells added, removed or positions modified) every <see cref="TableColumn"/> linked to this table will be updated.<br/><br/>
+		/// This is useful as if you want to set a universal property for every cell in a column (such as <see cref="TableCell.CellSize"/> width) you can set <see cref="TableColumn.Width"/> which will update each cell's width to be the value provided.
+		/// </summary>
+		/// <param name="index">The column to retrieve</param>
+		/// <returns>An iterable collection of cells where each cell is in the column according to <see cref="TableColumn.RowNumber"/></returns>
 		public TableColumn GetColumn(int index) => TableColumn.FromTable(this, index);
 
+		/// <summary>
+		/// Removes missing spaces in the table. If there are gaps within the table, empty cells will be added so that there is a visible cell at each position.
+		/// </summary>
 		public void ExpandGaps()
 		{
 			Size tableSize = TableSize;
@@ -219,8 +277,13 @@ namespace ImgTableDataExporter
 			}
 		}
 
+		/// <summary>
+		/// Resizes each column to fit the content of each cell. Calling this method will ensure that all the content is not cut off/overlapping other cells.
+		/// </summary>
+		/// <param name="overflow">How many extra pixels each column should be extended by.</param>
 		public void ExpandContentToColumns(int overflow = 5)
 		{
+			// TODO: Make an equivelant for rows. (When alignment features are added.)
 			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
 			Size tableSize = TableSize;
 
@@ -234,6 +297,10 @@ namespace ImgTableDataExporter
 			}
 		}
 
+		/// <summary>
+		/// Produces an image of the table in full. Returns a <see cref="Bitmap"/> object which can then be used for any other purpose such as saving directly to a file or overlapping to an existing image.
+		/// </summary>
+		/// <returns>A bitmap object which is the table visualized as an image.</returns>
 		public Bitmap ExportTable()
 		{
 			Size tableSize = TableSize;
@@ -325,11 +392,45 @@ namespace ImgTableDataExporter
 			return image;
 		}
 
+		/// <summary>
+		/// Returns the cell according to <paramref name="position"/>.<br/><br/>
+		/// 
+		/// When setting the value at the index, the cell at <paramref name="position"/> will be replaced with the value given, otherwise, it is just inserted into the table. 
+		/// </summary>
+		/// <param name="position">The position of the desired cell.</param>
+		/// <returns>A cell at position <paramref name="position"/>.</returns>
 		public TableCell this[Vector2I position]
 		{
 			get => Cells.ElementAt(Cells.FindIndex(x => x.TablePosition == position));
+			set
+			{
+				// Indexing will directly replace a cell if there is already a cell at the position, otherwise, just insert it as normal.
+				int index = Cells.FindIndex(x => x.TablePosition == position);
+
+				if (index == -1)
+				{
+					Cells.Add(value);
+				}
+				else
+				{
+					Cells[index] = value;
+				}
+			}
 		}
 
+		/// <summary>
+		/// Goes through each object of <typeparamref name="T"/> and adds a new row according to properties specified in <paramref name="order"/>.
+		/// Uses reflection.<br/><br/>
+		/// 
+		/// You can specify what properties to retrieve and the order to retrieve them by <paramref name="order"/> parameter.<br/><br/>
+		/// E.g. A record with properties ID, Name, Phone Number and Address where the properties ID, Name and PhoneNumber are desired can be retrieved by setting order to <code>"ID.Name.PhoneNumber"</code><br/><br/>
+		/// 
+		/// This will retrieve the ID, Name and PhoneNumber properties from each object and add them as a row.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="objects">The collection of data to add which is of type <typeparamref name="T"/></param>
+		/// <param name="order">The objects to retrieve and in what order separated by dots.<br/></param>
+		/// <param name="startAt">The top left position where the newly added cells from the data should be added to.</param> 
 		public void SerializeFromObjects<T>(ICollection<T> objects, string order, Vector2I startAt)
 		{
 			string[] properties = order.Split('.');
@@ -362,6 +463,11 @@ namespace ImgTableDataExporter
 			}
 		}
 
+		/// <summary>
+		/// Updates each <see cref="TableRow"/> and <see cref="TableColumn"/> by their .Refresh() methods (provided in <see cref="ITableCollection.Refresh()"/>)
+		/// </summary>
+		/// <param name="cellChanged"></param>
+		/// <param name="e"></param>
 		public void TableStructureChanged_Event(TableCell cellChanged, TableStructureChangedEventArgs e)
 		{
 			TableCollectionInvalidated?.Invoke();

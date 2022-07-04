@@ -77,7 +77,7 @@
     <Compile Include="TableMismatchException.cs" />
     <Compile Include="TableStructureChangedEventHandler.cs" />
     <Compile Include="TableStructure\TableCell.cs" />
-    <Compile Include="TableStructure\TableCollection.cs" />
+    <Compile Include="TableStructure\ITableCollection.cs" />
     <Compile Include="TableStructure\TableColumn.cs" />
     <Compile Include="TableStructure\TableRow.cs" />
     <Compile Include="Utilities\Extensions.cs" />

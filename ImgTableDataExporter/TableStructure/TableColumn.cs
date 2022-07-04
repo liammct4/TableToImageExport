@@ -12,15 +12,15 @@ namespace ImgTableDataExporter.TableStructure
 	public class TableColumn : ITableCollection
 	{
 		public ReadOnlyCollection<TableCell> Cells => _cells.AsReadOnly();
-		public TableGenerator Parent { get; private set; }
-		public int ColumnNumber { get; private set; }
+		public TableGenerator Parent { get; internal set; }
+		public int ColumnNumber { get; internal set; }
 		public int Width
 		{
 			get
 			{
 				// Gets the cell with the maximum width;
 				int maxWidth = 0;
-				
+
 				foreach (TableCell cell in Cells)
 				{
 					if (cell.CellSize.Width > maxWidth)
@@ -48,13 +48,23 @@ namespace ImgTableDataExporter.TableStructure
 			Parent.TableCollectionInvalidated += Refresh;
 		}
 
-		public static TableColumn FromTable(TableGenerator parent, int columnNumber) => new TableColumn(parent)
+		public static TableColumn FromTable(TableGenerator parent, int columnNumber)
 		{
-			ColumnNumber = columnNumber,
-			_cells = parent.Cells.Where(x => x.TablePosition.X == columnNumber).ToList()
-		};
+			TableColumn column = new TableColumn(parent)
+			{
+				ColumnNumber = columnNumber,
+			};
 
-		public void Refresh() => _cells = Parent.Cells.Where(x => x.TablePosition.X == ColumnNumber).ToList();
+			column.Refresh();
+
+			return column;
+		}
+
+		public void Refresh()
+		{
+			_cells = Parent.Cells.Where(x => x.TablePosition.X == ColumnNumber).ToList();
+			_cells.Sort((a, b) => a.TablePosition.Y - b.TablePosition.Y);
+		}
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
@@ -94,6 +104,17 @@ namespace ImgTableDataExporter.TableStructure
 			GC.SuppressFinalize(this);
 		}
 
-		public TableCell this[int index] => Cells.ElementAt(index);
+		public TableCell this[int index]
+		{
+			get
+			{
+				if (index < Cells.Count)
+				{
+					return Cells.ElementAt(index);
+				}
+
+				return null;
+			}
+		}
 	}
 }

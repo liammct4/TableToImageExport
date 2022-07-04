@@ -79,13 +79,23 @@ namespace ImgTableDataExporter.TableStructure
 			Parent.TableCollectionInvalidated += Refresh;
 		}
 
-		public static TableRow FromTable(TableGenerator parent, int rowNumber) => new TableRow(parent)
+		public static TableRow FromTable(TableGenerator parent, int rowNumber)
 		{
-			RowNumber = rowNumber,
-			_cells = parent.Cells.Where(x => x.TablePosition.Y == rowNumber).ToList()
-		};
+			TableRow row = new TableRow(parent)
+			{
+				RowNumber = rowNumber,
+			};
 
-		public void Refresh() => _cells = Parent.Cells.Where(x => x.TablePosition.Y == RowNumber).ToList();
+			row.Refresh();
+
+			return row;
+		}
+
+		public void Refresh()
+		{
+			_cells = Parent.Cells.Where(x => x.TablePosition.Y == RowNumber).ToList();
+			_cells.Sort((a, b) => a.TablePosition.X - b.TablePosition.X);
+		}
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
@@ -126,6 +136,17 @@ namespace ImgTableDataExporter.TableStructure
 			GC.SuppressFinalize(this);
 		}
 
-		public TableCell this[int index] => Cells.ElementAt(index);
+		public TableCell this[int index]
+		{
+			get
+			{
+				if (index < Cells.Count)
+				{
+					return Cells.ElementAt(index);
+				}
+
+				return null;
+			}
+		}
 	}
 }

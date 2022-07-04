@@ -244,14 +244,18 @@ namespace ImgTableDataExporter
 		/// <summary>
 		/// Removes missing spaces in the table. If there are gaps within the table, empty cells will be added so that there is a visible cell at each position.
 		/// </summary>
-		public void ExpandGaps()
+		/// <returns>A list which contains all of the newly added cells.</returns>
+		public IList<TableCell> FillMissingGaps()
 		{
+			// This will fill in all spaces between column 0 to column at tableSize.X and row 0 to row at tableSize.Y.
 			Size tableSize = TableSize;
+			List<TableCell> addedCells = new List<TableCell>();
 
 			for (int c = 0; c <= tableSize.Width; c++)
 			{
 				TableColumn column = GetColumn(c);
 
+				// If the column has no missing spaces, the loop can be skipped to the next column.
 				if (column.Count() == tableSize.Height)
 				{
 					continue;
@@ -259,9 +263,11 @@ namespace ImgTableDataExporter
 
 				for (int r = 0; r <= tableSize.Height; r++)
 				{
-					int index = column.ToList().FindIndex(x => x.TablePosition.Y == r);
+					// Check if a cell exists in row r.
+					TableCell cell = column[r];
 
-					if (index == -1)
+					// Important to remember: indexing an ITableCollection will not throw an IndexOutOfRangeException, it will only return null if none was found.
+					if (cell == null)
 					{
 						TableCell fillerCell = new TableCell(this)
 						{
@@ -272,9 +278,12 @@ namespace ImgTableDataExporter
 							Content = string.Empty
 						};
 						Cells.Add(fillerCell);
+						addedCells.Add(fillerCell);
 					}
 				}
 			}
+
+			return addedCells;
 		}
 
 		/// <summary>

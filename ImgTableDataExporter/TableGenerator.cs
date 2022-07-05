@@ -9,13 +9,15 @@ using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
 using ImgTableDataExporter;
+using System.Diagnostics;
+using System.Collections.ObjectModel;
+using System.IO;
 using ImgTableDataExporter.DataStructures;
 using ImgTableDataExporter.ImageData;
 using ImgTableDataExporter.TableStructure;
 using ImgTableDataExporter.Utilities;
-using System.Diagnostics;
-using System.Collections.ObjectModel;
-using System.IO;
+using ImgTableDataExporter.TableContent;
+
 
 namespace ImgTableDataExporter
 {
@@ -185,7 +187,7 @@ namespace ImgTableDataExporter
 						for (int i = 0; i < row.Length; i++)
 						{
 							string item = row[i];
-							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row), item, new Size(80, 20)));
+							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row), new TextContent(item)));
 						}
 					}
 				}
@@ -197,7 +199,7 @@ namespace ImgTableDataExporter
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell with the given content which has a set of default configuration values.</returns>
-		public TableCell CreateNewCell(Vector2I position, string content = "") => new TableCell(this)
+		public TableCell CreateNewCell(Vector2I position, ITableContent content = null) => new TableCell(this)
 		{
 			TablePosition = position,
 			Content = content
@@ -208,7 +210,7 @@ namespace ImgTableDataExporter
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell located within the table.</returns>
-		public TableCell CreateNewCell(Vector2I tablePosition, string data, Size cellSize, Font font = null, Color? textBG = null, Color? BG = null) => new TableCell(this, tablePosition, data, cellSize, font, textBG, BG);
+		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, Color? BG = null) => new TableCell(this, tablePosition, data, cellSize, BG);
 
 		/// <summary>
 		/// Loads a list of created cells.
@@ -274,8 +276,7 @@ namespace ImgTableDataExporter
 							TablePosition = new Vector2I(c, r),
 							CellSize = new Size(column.Width, GetRow(r).Height),
 							BG = Color.Transparent,
-							TextBG = Color.Black,
-							Content = string.Empty
+							Content = null
 						};
 						Cells.Add(fillerCell);
 						addedCells.Add(fillerCell);
@@ -300,7 +301,7 @@ namespace ImgTableDataExporter
 			{
 				TableColumn column = GetColumn(c);
 				float maxWidth = 0;
-				column.Select(x => graphics.MeasureString(x.Content.ToString(), x.Font).Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
+				column.Select(x => x.Content.GetContentSize(graphics).Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
 
 				column.Width = (int)maxWidth + overflow;
 			}
@@ -350,7 +351,7 @@ namespace ImgTableDataExporter
 					};
 
 					// Positioning of content.
-					SizeF size = graphics.MeasureString(cell.Content, cell.Font);
+					SizeF size = cell.Content.GetContentSize(graphics);
 					
 					// At the moment, the content will be aligned left and vertically centred.
 					// To prevent overlapping content, this is a rectangle which defines the boundaries for the text where if the text doesnt fit, it will simply be cut off.
@@ -364,9 +365,8 @@ namespace ImgTableDataExporter
 					};
 
 					// Now just simply draw the content onto the image.
-					// TODO: Allow support for multiple content types, (e.g. Subcells and Images).
 					graphics.DrawRoundedBox(cellBounds, cell.BG, corners);
-					graphics.DrawString(cell.Content, cell.Font, new SolidBrush(cell.TextBG), contentPosition);
+					cell.Content.WriteContent(graphics, contentPosition);
 					accumulatedHeight += cell.CellSize.Height;
 				}
 
@@ -402,6 +402,12 @@ namespace ImgTableDataExporter
 			}
 		}
 
+		public TableCell this[int column, int row]
+		{
+			get => this[new Vector2I(column, row)];
+			set => this[new Vector2I(column, row)] = value;
+		}
+
 		/// <summary>
 		/// Goes through each object of <typeparamref name="T"/> and adds a new row according to properties specified in <paramref name="order"/>.
 		/// Uses reflection.<br/><br/>
@@ -434,7 +440,7 @@ namespace ImgTableDataExporter
 					TableCell cell = new TableCell(this)
 					{
 						TablePosition = new Vector2I(column++, r),
-						Content = value
+						Content = new TextContent(value)
 					};
 
 					cells.Add(cell);

@@ -73,6 +73,9 @@
     <Compile Include="DataStructures\Vector2I.cs" />
     <Compile Include="ImageData\ImageExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TableContent\ImageContent.cs" />
+    <Compile Include="TableContent\ITableContent.cs" />
+    <Compile Include="TableContent\TextContent.cs" />
     <Compile Include="TableGenerator.cs" />
     <Compile Include="TableMismatchException.cs" />
     <Compile Include="TableStructureChangedEventHandler.cs" />

@@ -312,30 +312,19 @@ namespace ImgTableDataExporter
 		/// <returns>A bitmap object which is the table visualized as an image.</returns>
 		public Bitmap ExportTable()
 		{
+			// Precache the appropriate information about the table as these are very complicated. Use instead of directly accessing property.
 			Size tableSize = TableSize;
 			SizeF tableDimensions = TableDimensions;
 
-			TableRow topRow = GetRow(0);
-			TableRow bottomRow = GetRow(tableSize.Height);
-
-			int[] cornerIndexes = new int[]
-			{
-				topRow.Cells.FindIndex(x => x.TablePosition.X == 0)
-			};
-
+			// Since we know the direct pixel dimensions of the table, the bitmap can be created right away and be written to using the Graphics class.
 			Bitmap image = new Bitmap((int)tableDimensions.Width + 1, (int)tableDimensions.Height + 1);
 			Graphics graphics = Graphics.FromImage(image);
 			graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
-			TableRow[] rows = new TableRow[TableSize.Height];
-
-			for (int i = 0; i < rows.Length; i++)
-			{
-				rows[i] = GetRow(i);
-			}
-
+			// Precache all the rows of the table as these only need to be got once instead of through every column iteration.
+			TableRow[] rows = Enumerable.Range(0, TableSize.Height + 1).Select(i => GetRow(i)).ToArray();
+			
 			int accumulatedWidth = 0;
-
 			for (int c = 0; c <= tableSize.Width; c++)
 			{
 				TableColumn column = GetColumn(c);
@@ -349,40 +338,24 @@ namespace ImgTableDataExporter
 						accumulatedHeight += rows[r].Height;
 					}
 
-					Bounds corners = new Bounds(0);
-					Point cellCoordinates = new Point(accumulatedWidth, accumulatedHeight);
-
-					if (cell.TablePosition.X == 0)
+					// Establish the basic information about the cell on the image used later to draw.
+					Point cellPixelCoordinates = new Point(accumulatedWidth, accumulatedHeight);
+					Rectangle cellBounds = new Rectangle(cellPixelCoordinates, cell.CellSize);
+					Bounds corners = new Bounds()
 					{
-						if (cell.TablePosition.Y == 0)
-						{
-							corners.TopLeft = (int)CornerRadius;
-						}
-						if (cell.TablePosition.Y == tableSize.Height)
-						{
-							corners.BottomLeft = (int)CornerRadius;
-						}
-					}
+						TopLeft = cell.TablePosition.X == 0 && cell.TablePosition.Y == 0 ? (int)CornerRadius : 0,
+						TopRight = cell.TablePosition.X == tableSize.Width && cell.TablePosition.Y == 0 ? (int)CornerRadius : 0,
+						BottomLeft = cell.TablePosition.X == 0 && cell.TablePosition.Y == tableSize.Height ? (int)CornerRadius : 0,
+						BottomRight = cell.TablePosition.X == tableSize.Width && cell.TablePosition.Y == tableSize.Height ? (int)CornerRadius : 0
+					};
 
-					if (cell.TablePosition.X == tableSize.Width)
-					{
-						if (cell.TablePosition.Y == 0)
-						{
-							corners.TopRight = (int)CornerRadius;
-						}
-
-						if (cell.TablePosition.Y == tableSize.Height)
-						{
-							corners.BottomRight = (int)CornerRadius;
-						}
-					}
-
-					Rectangle cellBounds = new Rectangle(cellCoordinates, cell.CellSize);
-					graphics.DrawRoundedBox(cellBounds, cell.BG, corners);
-
+					// Positioning of content.
 					SizeF size = graphics.MeasureString(cell.Content, cell.Font);
-
-					RectangleF position = new RectangleF()
+					
+					// At the moment, the content will be aligned left and vertically centred.
+					// To prevent overlapping content, this is a rectangle which defines the boundaries for the text where if the text doesnt fit, it will simply be cut off.
+					// TODO: Add options for content alignment in both axies.
+					RectangleF contentPosition = new RectangleF()
 					{
 						X = cellBounds.X,
 						Y = cellBounds.Y + ((cell.CellSize.Height / 2) - (size.Height / 2)),
@@ -390,8 +363,10 @@ namespace ImgTableDataExporter
 						Height = cellBounds.Height
 					};
 
-					graphics.DrawString(cell.Content, cell.Font, new SolidBrush(cell.TextBG), position);
-
+					// Now just simply draw the content onto the image.
+					// TODO: Allow support for multiple content types, (e.g. Subcells and Images).
+					graphics.DrawRoundedBox(cellBounds, cell.BG, corners);
+					graphics.DrawString(cell.Content, cell.Font, new SolidBrush(cell.TextBG), contentPosition);
 					accumulatedHeight += cell.CellSize.Height;
 				}
 

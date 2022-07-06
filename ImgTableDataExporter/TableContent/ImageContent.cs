@@ -37,7 +37,7 @@ namespace ImgTableDataExporter.TableContent
 		/// <summary>
 		/// Draws an image onto a table at the specified position.
 		/// </summary>
-		public void WriteContent(Graphics graphics, Point position) => graphics.DrawImage(Content, position.X, position.Y, imageSize.Width, imageSize.Height);
+		public void WriteContent(Graphics graphics, Point position) => graphics.DrawImage(Content, position.X + 1, position.Y + 1, imageSize.Width, imageSize.Height);
 		/// <summary>
 		/// Gets the size of the image in pixels.
 		/// </summary>

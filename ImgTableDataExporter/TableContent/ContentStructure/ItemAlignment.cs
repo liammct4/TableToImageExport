@@ -81,8 +81,8 @@ namespace ImgTableDataExporter.TableContent.ContentStructure
 		/// <returns>The relative position of the object within the container.</returns>
 		public Point Align(SizeF containerSize, SizeF objectSize) => new Point()
 		{
-			X = (int)GetHorizontal(objectSize.Width, containerSize.Width),
-			Y = (int)GetVertical(objectSize.Height, containerSize.Height)
+			X = (int)GetHorizontal(objectSize.Width, containerSize.Width - 1),
+			Y = (int)GetVertical(objectSize.Height, containerSize.Height - 1)
 		};
 
 		private float GetHorizontal(float objectWidth, float containerWidth)
@@ -90,7 +90,7 @@ namespace ImgTableDataExporter.TableContent.ContentStructure
 			switch (Horizontal)
 			{
 				case HorizontalAlignment.Left:
-					return 1 + Margin.X;
+					return 0 + Margin.X;
 				case HorizontalAlignment.Centre:
 					return (containerWidth / 2) - (objectWidth / 2);
 				case HorizontalAlignment.Right:
@@ -105,7 +105,7 @@ namespace ImgTableDataExporter.TableContent.ContentStructure
 			switch (Vertical)
 			{
 				case VerticalAlignment.Top:
-					return 1 + Margin.Y;
+					return 0 + Margin.Y;
 				case VerticalAlignment.Centre:
 					return (containerHeight / 2) - (objectHeight / 2);
 				case VerticalAlignment.Bottom:

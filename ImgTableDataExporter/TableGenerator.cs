@@ -330,9 +330,9 @@ namespace ImgTableDataExporter
 			secondary = secondary is null ? Color.FromArgb(250, 250, 255) : secondary;
 
 			// Precache the table size.
-			Size tableSize = TableSize;
+			Section tableSize = TableSize;
 
-			for (int i = rowStartAt; i <= tableSize.Height; i++)
+			for (int i = rowStartAt; i <= tableSize.Bottom; i++)
 			{
 				TableRow row = GetRow(i);
 

@@ -62,19 +62,29 @@ namespace ImgTableDataExporter
 		/// <summary>
 		/// Gets the width and length of the table in terms of the number of rows and columns.
 		/// </summary>
-		public Size TableSize
+		public Section TableSize
 		{
 			get
 			{
-				Size max = Size.Empty;
+				Vector2I min = new Vector2I(int.MaxValue, int.MaxValue);
+				Vector2I max = new Vector2I(0, 0);
 
 				foreach (TableCell cell in Cells)
 				{
-					max.Width = cell.TablePosition.X > max.Width ? cell.TablePosition.X : max.Width;
-					max.Height = cell.TablePosition.Y > max.Height ? cell.TablePosition.Y : max.Height;
+					min.X = cell.TablePosition.X < min.X ? cell.TablePosition.X : min.X;
+					min.Y = cell.TablePosition.Y < min.Y ? cell.TablePosition.Y : min.Y; 
+
+					max.X = cell.TablePosition.X > max.X ? cell.TablePosition.X : max.X;
+					max.Y = cell.TablePosition.Y > max.Y ? cell.TablePosition.Y : max.Y;
 				};
 
-				return max;
+				return new Section()
+				{
+					Top = min.Y,
+					Right = max.X,
+					Bottom = max.Y,
+					Left = min.X
+				};
 			}
 		}
 
@@ -89,16 +99,16 @@ namespace ImgTableDataExporter
 		{
 			get
 			{
-				Size tableSize = TableSize;
+				Section tableSize = TableSize;
 				SizeF dimensions = SizeF.Empty;
 
-				for (int c = 0; c <= tableSize.Width; c++)
+				for (int c = tableSize.Left; c <= tableSize.Right; c++)
 				{
 					TableColumn column = GetColumn(c);
 					dimensions.Width += column.Width;
 				}
 
-				for (int r = 0; r <= tableSize.Height; r++)
+				for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 				{
 					TableRow row = GetRow(r);
 					dimensions.Height += row.Height;
@@ -185,7 +195,7 @@ namespace ImgTableDataExporter
 						for (int i = 0; i < row.Length; i++)
 						{
 							string item = row[i];
-							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row), item, new Size(80, 20)));
+							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), item, new Size(80, 20)));
 						}
 					}
 				}
@@ -248,20 +258,20 @@ namespace ImgTableDataExporter
 		public IList<TableCell> FillMissingGaps()
 		{
 			// This will fill in all spaces between column 0 to column at tableSize.X and row 0 to row at tableSize.Y.
-			Size tableSize = TableSize;
+			Section tableSize = TableSize;
 			List<TableCell> addedCells = new List<TableCell>();
 
-			for (int c = 0; c <= tableSize.Width; c++)
+			for (int c = tableSize.Left; c <= tableSize.Right; c++)
 			{
 				TableColumn column = GetColumn(c);
 
 				// If the column has no missing spaces, the loop can be skipped to the next column.
-				if (column.Count() == tableSize.Height)
+				if (column.Count() == tableSize.Bottom)
 				{
 					continue;
 				}
 
-				for (int r = 0; r <= tableSize.Height; r++)
+				for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 				{
 					// Check if a cell exists in row r.
 					TableCell cell = column[r];
@@ -294,9 +304,9 @@ namespace ImgTableDataExporter
 		{
 			// TODO: Make an equivelant for rows. (When alignment features are added.)
 			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
-			Size tableSize = TableSize;
+			Section tableSize = TableSize;
 
-			for (int c = 0; c <= tableSize.Width; c++)
+			for (int c = tableSize.Left; c <= tableSize.Right; c++)
 			{
 				TableColumn column = GetColumn(c);
 				float maxWidth = 0;
@@ -313,7 +323,7 @@ namespace ImgTableDataExporter
 		public Bitmap ExportTable()
 		{
 			// Precache the appropriate information about the table as these are very complicated. Use instead of directly accessing property.
-			Size tableSize = TableSize;
+			Section tableSize = TableSize;
 			SizeF tableDimensions = TableDimensions;
 
 			// Since we know the direct pixel dimensions of the table, the bitmap can be created right away and be written to using the Graphics class.
@@ -322,10 +332,10 @@ namespace ImgTableDataExporter
 			graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
 			// Precache all the rows of the table as these only need to be got once instead of through every column iteration.
-			TableRow[] rows = Enumerable.Range(0, TableSize.Height + 1).Select(i => GetRow(i)).ToArray();
+			TableRow[] rows = Enumerable.Range(0, TableSize.Bottom + 1).Select(i => GetRow(i)).ToArray();
 			
 			int accumulatedWidth = 0;
-			for (int c = 0; c <= tableSize.Width; c++)
+			for (int c = tableSize.Left; c <= tableSize.Right; c++)
 			{
 				TableColumn column = GetColumn(c);
 
@@ -343,10 +353,10 @@ namespace ImgTableDataExporter
 					Rectangle cellBounds = new Rectangle(cellPixelCoordinates, cell.CellSize);
 					Bounds corners = new Bounds()
 					{
-						TopLeft = cell.TablePosition.X == 0 && cell.TablePosition.Y == 0 ? (int)CornerRadius : 0,
-						TopRight = cell.TablePosition.X == tableSize.Width && cell.TablePosition.Y == 0 ? (int)CornerRadius : 0,
-						BottomLeft = cell.TablePosition.X == 0 && cell.TablePosition.Y == tableSize.Height ? (int)CornerRadius : 0,
-						BottomRight = cell.TablePosition.X == tableSize.Width && cell.TablePosition.Y == tableSize.Height ? (int)CornerRadius : 0
+						TopLeft = cell.TablePosition.X == tableSize.Left && cell.TablePosition.Y == tableSize.Top ? (int)CornerRadius : 0,
+						TopRight = cell.TablePosition.X == tableSize.Right && cell.TablePosition.Y == tableSize.Top ? (int)CornerRadius : 0,
+						BottomLeft = cell.TablePosition.X == tableSize.Left && cell.TablePosition.Y == tableSize.Bottom ? (int)CornerRadius : 0,
+						BottomRight = cell.TablePosition.X == tableSize.Right && cell.TablePosition.Y == tableSize.Bottom ? (int)CornerRadius : 0
 					};
 
 					// Positioning of content.

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
+using ImgTableDataExporter.TableContent;
 
 namespace ImgTableDataExporter.TableStructure
 {
@@ -45,7 +46,10 @@ namespace ImgTableDataExporter.TableStructure
 			{
 				foreach (TableCell cell in Cells)
 				{
-					cell.Font = value;
+					if (cell.Content is TextContent content)
+					{
+						content.Font = value;
+					}
 				}
 			}
 		}
@@ -55,7 +59,10 @@ namespace ImgTableDataExporter.TableStructure
 			{
 				foreach (TableCell cell in Cells)
 				{
-					cell.TextBG = value;
+					if (cell.Content is TextContent content)
+					{
+						content.TextBG = value;
+					}
 				}
 			}
 		}

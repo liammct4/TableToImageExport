@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,5 +49,8 @@ namespace ImgTableDataExporter.Utilities
 
 			return largest;
 		}
+
+		public static Point TopLeftPoint(this RectangleF rectangle) => new Point((int)rectangle.Left, (int)rectangle.Top);
+		public static Point MiddleLeftPoint(this RectangleF rectangle) => new Point((int)rectangle.Left, (int)(rectangle.Top + (rectangle.Height / 2)));
 	}
 }

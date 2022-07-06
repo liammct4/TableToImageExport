@@ -8,6 +8,7 @@ namespace ImgTableDataExporter.DataStructures
 {
 	public struct Vector2I
 	{
+		public static Vector2I Empty => new Vector2I(0);
 		public int X;
 		public int Y;
 

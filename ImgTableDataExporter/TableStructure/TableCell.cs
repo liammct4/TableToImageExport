@@ -6,15 +6,16 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using ImgTableDataExporter.DataStructures;
+using ImgTableDataExporter.TableContent;
+using ImgTableDataExporter.TableContent.ContentStructure;
 
 namespace ImgTableDataExporter.TableStructure
 {
 	public partial class TableCell
 	{
-		public static readonly Size DefaultCellSize = new Size(100, 40);
-		public static readonly Font DefaultFont = new Font("Helvetica", 15);
-		public static readonly Color DefaultTextBG = Color.Black;
-		public static readonly Color DefaultBG = Color.White;
+		public static Size DefaultCellSize = new Size(100, 28);
+		public static Color DefaultBG = Color.White;
+		public static ItemAlignment DefaultContentAlignment = ItemAlignment.CentreLeft;
 
 		public Vector2I TablePosition
 		{
@@ -26,11 +27,11 @@ namespace ImgTableDataExporter.TableStructure
 			}
 		}
 		public TableGenerator Parent { get; internal set; }
-		public string Content { get; set; }
+		public ITableContent Content { get; set; }
 		public Size CellSize { get; set; } = DefaultCellSize;
-		public Font Font { get; set; } = DefaultFont;
-		public Color TextBG { get; set; } = DefaultTextBG;
 		public Color BG { get; set; } = DefaultBG;
+		public ItemAlignment ContentAlignment { get; set; } = DefaultContentAlignment;
+
 		private Vector2I _tablePosition;
 		public event TableStructureChangedEventHandler CellPositionChanged;
 
@@ -41,22 +42,19 @@ namespace ImgTableDataExporter.TableStructure
 			CellPositionChanged += parent.TableStructureChanged_Event;
 		}
 
-		internal TableCell(TableGenerator parent, Vector2I tablePosition, string data, Size? cellSize = null, Font font = null, Color? textBG = null, Color? BG = null)
+		internal TableCell(TableGenerator parent, Vector2I tablePosition, ITableContent data, ItemAlignment? contentAlignment = null, Size? cellSize = null, Color? BG = null)
 		{
 			Parent = parent;
 			TablePosition = tablePosition;
 			Content = data;
-			CellSize = cellSize is null ? new Size() : cellSize.Value;
-			Font = font is null ? new Font("Arial", 13) : font;
-			TextBG = textBG is null ? Color.Black : textBG.Value;
-			this.BG = BG is null ? Color.Transparent : BG.Value;
+			ContentAlignment = contentAlignment is null ? DefaultContentAlignment : contentAlignment.Value;
+			CellSize = cellSize is null ? DefaultCellSize : cellSize.Value;
+			this.BG = BG is null ? DefaultBG : BG.Value;
 			CellPositionChanged += parent.TableStructureChanged_Event;
 		}
 
 		public void ResetSettings(bool resetSize = false)
 		{
-			Font = DefaultFont;
-			TextBG = DefaultTextBG;
 			BG = DefaultBG;
 
 			if (resetSize)

@@ -9,13 +9,15 @@ using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
 using ImgTableDataExporter;
+using System.Diagnostics;
+using System.Collections.ObjectModel;
+using System.IO;
 using ImgTableDataExporter.DataStructures;
 using ImgTableDataExporter.ImageData;
 using ImgTableDataExporter.TableStructure;
 using ImgTableDataExporter.Utilities;
-using System.Diagnostics;
-using System.Collections.ObjectModel;
-using System.IO;
+using ImgTableDataExporter.TableContent;
+using ImgTableDataExporter.TableContent.ContentStructure;
 
 namespace ImgTableDataExporter
 {
@@ -195,7 +197,7 @@ namespace ImgTableDataExporter
 						for (int i = 0; i < row.Length; i++)
 						{
 							string item = row[i];
-							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), item, new Size(80, 20)));
+							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), new TextContent(item)));
 						}
 					}
 				}
@@ -207,7 +209,7 @@ namespace ImgTableDataExporter
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell with the given content which has a set of default configuration values.</returns>
-		public TableCell CreateNewCell(Vector2I position, string content = "") => new TableCell(this)
+		public TableCell CreateNewCell(Vector2I position, ITableContent content = null) => new TableCell(this)
 		{
 			TablePosition = position,
 			Content = content
@@ -218,7 +220,7 @@ namespace ImgTableDataExporter
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell located within the table.</returns>
-		public TableCell CreateNewCell(Vector2I tablePosition, string data, Size cellSize, Font font = null, Color? textBG = null, Color? BG = null) => new TableCell(this, tablePosition, data, cellSize, font, textBG, BG);
+		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new TableCell(this, tablePosition, data, contentAlignment, cellSize, BG);
 
 		/// <summary>
 		/// Loads a list of created cells.
@@ -284,8 +286,7 @@ namespace ImgTableDataExporter
 							TablePosition = new Vector2I(c, r),
 							CellSize = new Size(column.Width, GetRow(r).Height),
 							BG = Color.Transparent,
-							TextBG = Color.Black,
-							Content = string.Empty
+							Content = null
 						};
 						Cells.Add(fillerCell);
 						addedCells.Add(fillerCell);
@@ -310,9 +311,40 @@ namespace ImgTableDataExporter
 			{
 				TableColumn column = GetColumn(c);
 				float maxWidth = 0;
-				column.Select(x => graphics.MeasureString(x.Content.ToString(), x.Font).Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
+				column.Select(x => x.Content.GetContentSize(graphics).Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
 
 				column.Width = (int)maxWidth + overflow;
+			}
+		}
+
+		/// <summary>
+		/// Creates a stripe effect for every row in the table using the primary and secondary colours.
+		/// </summary>
+		/// <param name="primary">This will be the colour of the first, third, fifth, etc. row</param>
+		/// <param name="secondary">This will be the colour of the second, fourth, sixth, etc. row</param>
+		/// <param name="rowStartAt">Which row the stripe effect will start at.</param>
+		public void AddStripeRibbonsToRows(Color? primary = null, Color? secondary = null, int rowStartAt = 1)
+		{
+			// Default options in case no colours were specified.
+			primary = primary is null ? Color.FromArgb(255, 255, 255) : primary;
+			secondary = secondary is null ? Color.FromArgb(250, 250, 255) : secondary;
+
+			// Precache the table size.
+			Size tableSize = TableSize;
+
+			for (int i = rowStartAt; i <= tableSize.Height; i++)
+			{
+				TableRow row = GetRow(i);
+
+				// Account for the offset of the "rowStartAt" so take it away in the calculations.
+				if ((i - rowStartAt) % 2 == 0)
+				{
+					row.RowBG = primary.Value;
+				}
+				else
+				{
+					row.RowBG = secondary.Value;
+				}
 			}
 		}
 
@@ -360,23 +392,17 @@ namespace ImgTableDataExporter
 					};
 
 					// Positioning of content.
-					SizeF size = graphics.MeasureString(cell.Content, cell.Font);
-					
-					// At the moment, the content will be aligned left and vertically centred.
-					// To prevent overlapping content, this is a rectangle which defines the boundaries for the text where if the text doesnt fit, it will simply be cut off.
-					// TODO: Add options for content alignment in both axies.
-					RectangleF contentPosition = new RectangleF()
+					SizeF contentSize = cell.Content.GetContentSize(graphics);
+					Point relativeCellPosition = cell.ContentAlignment.Align(cell.CellSize, contentSize);
+					Point contentPosition = new Point()
 					{
-						X = cellBounds.X,
-						Y = cellBounds.Y + ((cell.CellSize.Height / 2) - (size.Height / 2)),
-						Width = cellBounds.Width,
-						Height = cellBounds.Height
+						X = cellPixelCoordinates.X + relativeCellPosition.X,
+						Y = cellPixelCoordinates.Y + relativeCellPosition.Y
 					};
 
 					// Now just simply draw the content onto the image.
-					// TODO: Allow support for multiple content types, (e.g. Subcells and Images).
 					graphics.DrawRoundedBox(cellBounds, cell.BG, corners);
-					graphics.DrawString(cell.Content, cell.Font, new SolidBrush(cell.TextBG), contentPosition);
+					cell.Content.WriteContent(graphics, contentPosition);
 					accumulatedHeight += cell.CellSize.Height;
 				}
 
@@ -412,6 +438,12 @@ namespace ImgTableDataExporter
 			}
 		}
 
+		public TableCell this[int column, int row]
+		{
+			get => this[new Vector2I(column, row)];
+			set => this[new Vector2I(column, row)] = value;
+		}
+
 		/// <summary>
 		/// Goes through each object of <typeparamref name="T"/> and adds a new row according to properties specified in <paramref name="order"/>.
 		/// Uses reflection.<br/><br/>
@@ -444,7 +476,7 @@ namespace ImgTableDataExporter
 					TableCell cell = new TableCell(this)
 					{
 						TablePosition = new Vector2I(column++, r),
-						Content = value
+						Content = new TextContent(value)
 					};
 
 					cells.Add(cell);

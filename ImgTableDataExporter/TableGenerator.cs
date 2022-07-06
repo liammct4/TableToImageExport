@@ -355,7 +355,7 @@ namespace ImgTableDataExporter
 					
 					// At the moment, the content will be aligned left and vertically centred.
 					// To prevent overlapping content, this is a rectangle which defines the boundaries for the text where if the text doesnt fit, it will simply be cut off.
-					// TODO: Add options for content alignment in both axies.
+					// TODO: Add options for content alignment in both axes.
 					RectangleF contentPosition = new RectangleF()
 					{
 						X = cellBounds.X,

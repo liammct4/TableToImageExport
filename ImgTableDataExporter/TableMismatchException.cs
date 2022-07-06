@@ -14,7 +14,13 @@ namespace ImgTableDataExporter
 	public class TableMismatchException : Exception
 	{
 		internal const string DEFAULT_MESSAGE = "An attempt was made to add a cell to a table when the cell belonged to another table.";
+		/// <summary>
+		/// The cell that was tried to be added to <see cref="AttemptedTable"/>.
+		/// </summary>
 		public TableCell MismatchedCell { get; internal set; }
+		/// <summary>
+		/// The table which had an attempt to add a cell to which belongs to another table.
+		/// </summary>
 		public TableGenerator AttemptedTable { get; internal set; }
 
 		public TableMismatchException(string message = DEFAULT_MESSAGE) : base(message) { }

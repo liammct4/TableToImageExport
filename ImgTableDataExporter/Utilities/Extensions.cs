@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 
 namespace ImgTableDataExporter.Utilities
 {
+	/// <summary>
+	/// Provides extension methods for different classes/structs
+	/// </summary>
 	public static class Extensions
 	{
+		/// <summary>
+		/// Performs the specified action on each element of the <see cref="IEnumerable{T}"/>
+		/// </summary>
 		public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
 		{
 			foreach (T item in collection)
@@ -17,6 +23,9 @@ namespace ImgTableDataExporter.Utilities
 			}
 		}
 
+		/// <summary>
+		/// Searches for an element that matches the conditions defined by the specified predicate, and returns the zero-based index of the first occurrence within the entire <see cref="ICollection{T}"/>.
+		/// </summary>
 		public static int FindIndex<T>(this ICollection<T> collection, Predicate<T> criteria)
 		{
 			for (int i = 0; i < collection.Count; i++)
@@ -24,33 +33,11 @@ namespace ImgTableDataExporter.Utilities
 				if (criteria(collection.ElementAt(i)))
 				{
 					return i;
+					
 				}
 			}
 
 			return -1;
 		}
-
-		public static T FindLargest<T>(this ICollection<T> collection, Comparison<T> criteria)
-		{
-			return FindLargest(collection.AsEnumerable(), criteria);
-		}
-
-		public static T FindLargest<T>(this IEnumerable<T> collection, Comparison<T> criteria)
-		{
-			T largest = collection.First();
-
-			for (int i = 0; i < collection.Count() - 1; i++)
-			{
-				if (criteria(collection.ElementAt(i), collection.ElementAt(i + 1)) > 0)
-				{
-					largest = collection.ElementAt(i);
-				}
-			}
-
-			return largest;
-		}
-
-		public static Point TopLeftPoint(this RectangleF rectangle) => new Point((int)rectangle.Left, (int)rectangle.Top);
-		public static Point MiddleLeftPoint(this RectangleF rectangle) => new Point((int)rectangle.Left, (int)(rectangle.Top + (rectangle.Height / 2)));
 	}
 }

@@ -60,6 +60,9 @@ namespace ImgTableDataExporter
 		/// When exporting the table, this will determine how rounded the corners will be, set to 0 to get a square table/grid and to any positive 
 		/// </summary>
 		public uint CornerRadius { get; set; }
+		/// <summary>
+		/// When the table structure has changed, this event will be invoked which will update all <see cref="ITableCollection"/> objects.
+		/// </summary>
 		public event Action TableCollectionInvalidated;
 		/// <summary>
 		/// Gets the width and length of the table in terms of the number of rows and columns.
@@ -127,13 +130,20 @@ namespace ImgTableDataExporter
 			Cells.CollectionChanged += Cells_CollectionChanged;
 		}
 
+		/// <summary>
+		/// Loads data from a CSV file located at the file path.
+		/// </summary>
 		public TableGenerator(string filename) : this()
 		{
-			Load(filename);
+			Load(File.OpenRead(filename));
 		}
 
+		/// <summary>
+		/// Loads data from a stream containing CSV data.
+		/// </summary>
 		public TableGenerator(Stream csvStream) : this()
 		{
+			// TODO: Add support for TSV (possibly using the same CSV parser library).
 			Load(csvStream);
 		}
 

@@ -13,6 +13,13 @@ namespace ImgTableDataExporter.ImageData
 	/// </summary>
 	public static class ImageExtensions
 	{
+		/// <summary>
+		/// Draws a rectangular box with rounded corners specified by <paramref name="data"/>.
+		/// </summary>
+		/// <param name="data">The rectangle area to fill.</param>
+		/// <param name="colour">The background colour of the rectangle.</param>
+		/// <param name="corners">The radius of each of the four corners of the rectangle.</param>
+		/// <param name="border">The border colour of the rectangle.</param>
 		public static void DrawRoundedBox(this Graphics graphics, Rectangle data, Color colour, Bounds corners, Color? border = null)
 		{
 			if (!border.HasValue)
@@ -105,10 +112,18 @@ namespace ImgTableDataExporter.ImageData
 			}
 		}
 
-		public static void FillArc(this Graphics graphics, Pen pen, Color color, Rectangle rect, int StartAngle, int SweepAngle)
+		/// <summary>
+		/// Draws and fills in an arc.
+		/// </summary>
+		/// <param name="pen">Used in drawing the arc outline.</param>
+		/// <param name="color">The fill colour of the arc.</param>
+		/// <param name="rect">The area which the arc occupies.</param>
+		/// <param name="startAngle">Start Angle</param>
+		/// <param name="sweepAngle">How many degrees the arc will extend.</param>
+		public static void FillArc(this Graphics graphics, Pen pen, Color color, Rectangle rect, int startAngle, int sweepAngle)
 		{
-			graphics.FillPie(new SolidBrush(color), rect, StartAngle, SweepAngle);
-			graphics.DrawArc(pen, rect, StartAngle, SweepAngle);
+			graphics.FillPie(new SolidBrush(color), rect, startAngle, sweepAngle);
+			graphics.DrawArc(pen, rect, startAngle, sweepAngle);
 		}
 	}
 }

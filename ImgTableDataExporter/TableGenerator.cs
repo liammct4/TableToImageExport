@@ -407,6 +407,14 @@ namespace ImgTableDataExporter
 						BottomRight = cell.TablePosition.X == tableSize.Right && cell.TablePosition.Y == tableSize.Bottom ? (int)CornerRadius : 0
 					};
 
+					graphics.DrawRoundedBox(cellBounds, cell.BG, corners, BorderColour);
+					accumulatedHeight += cell.CellSize.Height;
+
+					if (cell.Content is null)
+					{
+						continue;
+					}
+
 					// Positioning of content.
 					SizeF contentSize = cell.Content.GetContentSize(graphics);
 					Point relativeCellPosition = cell.ContentAlignment.Align(cell.CellSize, contentSize);
@@ -417,9 +425,7 @@ namespace ImgTableDataExporter
 					};
 
 					// Now just simply draw the content onto the image.
-					graphics.DrawRoundedBox(cellBounds, cell.BG, corners, BorderColour);
 					cell.Content.WriteContent(graphics, contentPosition);
-					accumulatedHeight += cell.CellSize.Height;
 				}
 
 				accumulatedWidth += column.Width;

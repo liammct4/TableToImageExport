@@ -12,8 +12,8 @@ namespace ImgTableDataExporter.TableContent
 	/// </summary>
 	public class TextContent : ITableContent
 	{
-		public static readonly Font DefaultFont = new Font("Helvetica", 15);
-		public static readonly Color DefaultTextBG = Color.Black;
+		public static Font DefaultFont = new Font("Helvetica", 15);
+		public static Color DefaultTextBG = Color.Black;
 		/// <summary>
 		/// The text which this object stores.
 		/// </summary>

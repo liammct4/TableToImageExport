@@ -26,6 +26,8 @@ namespace ImgTableDataExporter
 	/// </summary>
 	public class TableGenerator
 	{
+		public static uint DefaultCornerRadius = 5;
+		public static Color DefaultBorderColour = Color.Black;
 		/// <summary>
 		/// Stores every cell within the table, the table is structured per cell (see <see cref="TableCell.TablePosition"/>) so the order of the list does not matter. Changes made to this list will update any <see cref="TableColumn"/> and <see cref="TableRow"/> automatically.<br/><br/>
 		/// 
@@ -59,7 +61,11 @@ namespace ImgTableDataExporter
 		/// <summary>
 		/// When exporting the table, this will determine how rounded the corners will be, set to 0 to get a square table/grid and to any positive 
 		/// </summary>
-		public uint CornerRadius { get; set; }
+		public uint CornerRadius { get; set; } = DefaultCornerRadius;
+		/// <summary>
+		/// When exporting the table, this will determine the colour of the borders of each cell.
+		/// </summary>
+		public Color BorderColour { get; set; } = DefaultBorderColour;
 		/// <summary>
 		/// When the table structure has changed, this event will be invoked which will update all <see cref="ITableCollection"/> objects.
 		/// </summary>
@@ -206,7 +212,7 @@ namespace ImgTableDataExporter
 
 						for (int i = 0; i < row.Length; i++)
 						{
-							string item = row[i];
+							string item = row[i].PerLineTrim();
 							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), new TextContent(item)));
 						}
 					}
@@ -411,7 +417,7 @@ namespace ImgTableDataExporter
 					};
 
 					// Now just simply draw the content onto the image.
-					graphics.DrawRoundedBox(cellBounds, cell.BG, corners);
+					graphics.DrawRoundedBox(cellBounds, cell.BG, corners, BorderColour);
 					cell.Content.WriteContent(graphics, contentPosition);
 					accumulatedHeight += cell.CellSize.Height;
 				}

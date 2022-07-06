@@ -90,7 +90,7 @@ namespace ImgTableDataExporter.TableContent.ContentStructure
 			switch (Horizontal)
 			{
 				case HorizontalAlignment.Left:
-					return 0 + Margin.X;
+					return 1 + Margin.X;
 				case HorizontalAlignment.Centre:
 					return (containerWidth / 2) - (objectWidth / 2);
 				case HorizontalAlignment.Right:
@@ -105,7 +105,7 @@ namespace ImgTableDataExporter.TableContent.ContentStructure
 			switch (Vertical)
 			{
 				case VerticalAlignment.Top:
-					return 0 + Margin.Y;
+					return 1 + Margin.Y;
 				case VerticalAlignment.Centre:
 					return (containerHeight / 2) - (objectHeight / 2);
 				case VerticalAlignment.Bottom:

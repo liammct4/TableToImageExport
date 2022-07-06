@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ImgTableDataExporter.TableStructure;
 using ImgTableDataExporter.Utilities;
 
 namespace ImgTableDataExporter.TableContent
@@ -13,7 +14,17 @@ namespace ImgTableDataExporter.TableContent
 	/// </summary>
 	public class ImageContent : ITableContent
 	{
-		public Image Content { get; set; }
+		public Image Content
+		{
+			get => _content;
+			set
+			{
+				_content = value;
+				imageSize = value.Size;
+			}
+		}
+		private Size imageSize;
+		private Image _content;
 		/// <summary>
 		/// Loads an image. Equivelant to setting <see cref="Content"/>.
 		/// </summary>
@@ -26,12 +37,17 @@ namespace ImgTableDataExporter.TableContent
 		/// <summary>
 		/// Draws an image onto a table at the specified position.
 		/// </summary>
-		public void WriteContent(Graphics graphics, RectangleF position) => graphics.DrawImage(Content, position.TopLeftPoint());
+		public void WriteContent(Graphics graphics, Point position) => graphics.DrawImage(Content, position.X, position.Y, imageSize.Width, imageSize.Height);
 		/// <summary>
 		/// Gets the size of the image in pixels.
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <returns>The size of the image.</returns>
-		public SizeF GetContentSize(Graphics graphics = null) => Content.Size;
+		public SizeF GetContentSize(Graphics graphics = null) => new SizeF(imageSize.Width, imageSize.Height);
+		/// <summary>
+		/// Changes the size of the image when rendered onto a table. This does NOT change the original size of the image in <see cref="Content"/>, this will only change the rendered size.
+		/// </summary>
+		/// <param name="size">The new size of the image.</param>
+		public void StretchImageToSize(Size size) => imageSize = size - new Size(1, 1);
 	}
 }

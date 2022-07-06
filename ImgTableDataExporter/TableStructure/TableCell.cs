@@ -7,13 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using ImgTableDataExporter.DataStructures;
 using ImgTableDataExporter.TableContent;
+using ImgTableDataExporter.TableContent.ContentStructure;
 
 namespace ImgTableDataExporter.TableStructure
 {
 	public partial class TableCell
 	{
-		public static readonly Size DefaultCellSize = new Size(100, 28);
-		public static readonly Color DefaultBG = Color.White;
+		public static Size DefaultCellSize = new Size(100, 28);
+		public static Color DefaultBG = Color.White;
+		public static ItemAlignment DefaultContentAlignment = ItemAlignment.CentreLeft;
 
 		public Vector2I TablePosition
 		{
@@ -28,6 +30,8 @@ namespace ImgTableDataExporter.TableStructure
 		public ITableContent Content { get; set; }
 		public Size CellSize { get; set; } = DefaultCellSize;
 		public Color BG { get; set; } = DefaultBG;
+		public ItemAlignment ContentAlignment { get; set; } = DefaultContentAlignment;
+
 		private Vector2I _tablePosition;
 		public event TableStructureChangedEventHandler CellPositionChanged;
 
@@ -38,13 +42,14 @@ namespace ImgTableDataExporter.TableStructure
 			CellPositionChanged += parent.TableStructureChanged_Event;
 		}
 
-		internal TableCell(TableGenerator parent, Vector2I tablePosition, ITableContent data, Size? cellSize = null, Color? BG = null)
+		internal TableCell(TableGenerator parent, Vector2I tablePosition, ITableContent data, ItemAlignment? contentAlignment = null, Size? cellSize = null, Color? BG = null)
 		{
 			Parent = parent;
 			TablePosition = tablePosition;
 			Content = data;
-			CellSize = cellSize is null ? new Size() : cellSize.Value;
-			this.BG = BG is null ? Color.Transparent : BG.Value;
+			ContentAlignment = contentAlignment is null ? DefaultContentAlignment : contentAlignment.Value;
+			CellSize = cellSize is null ? DefaultCellSize : cellSize.Value;
+			this.BG = BG is null ? DefaultBG : BG.Value;
 			CellPositionChanged += parent.TableStructureChanged_Event;
 		}
 

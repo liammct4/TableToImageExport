@@ -34,7 +34,7 @@ namespace ImgTableDataExporter.TableContent
 		/// <summary>
 		/// Draws the text onto the table using the specified settings <see cref="Font"/> and <see cref="TextBG"/>.
 		/// </summary>
-		public void WriteContent(Graphics graphics, RectangleF position) => graphics.DrawString(Content, Font, new SolidBrush(TextBG), position);
+		public void WriteContent(Graphics graphics, Point position) => graphics.DrawString(Content, Font, new SolidBrush(TextBG), position);
 		/// <summary>
 		/// Returns the size of the text in pixels when drawn using the specfied <see cref="Font"/> of this object.
 		/// </summary>

@@ -17,7 +17,7 @@ namespace ImgTableDataExporter.TableContent
 		/// </summary>
 		/// <param name="graphics">The image to draw on.</param>
 		/// <param name="position">The position of the content.</param>
-		void WriteContent(Graphics graphics, RectangleF position);
+		void WriteContent(Graphics graphics, Point position);
 		/// <summary>
 		/// Gets the size of the content item in pixels.
 		/// </summary>

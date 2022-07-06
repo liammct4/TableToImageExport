@@ -17,7 +17,7 @@ using ImgTableDataExporter.ImageData;
 using ImgTableDataExporter.TableStructure;
 using ImgTableDataExporter.Utilities;
 using ImgTableDataExporter.TableContent;
-
+using ImgTableDataExporter.TableContent.ContentStructure;
 
 namespace ImgTableDataExporter
 {
@@ -187,7 +187,7 @@ namespace ImgTableDataExporter
 						for (int i = 0; i < row.Length; i++)
 						{
 							string item = row[i];
-							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row), new TextContent(item)));
+							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), new TextContent(item)));
 						}
 					}
 				}
@@ -210,7 +210,7 @@ namespace ImgTableDataExporter
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell located within the table.</returns>
-		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, Color? BG = null) => new TableCell(this, tablePosition, data, cellSize, BG);
+		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new TableCell(this, tablePosition, data, contentAlignment, cellSize, BG);
 
 		/// <summary>
 		/// Loads a list of created cells.
@@ -308,6 +308,37 @@ namespace ImgTableDataExporter
 		}
 
 		/// <summary>
+		/// Creates a stripe effect for every row in the table using the primary and secondary colours.
+		/// </summary>
+		/// <param name="primary">This will be the colour of the first, third, fifth, etc. row</param>
+		/// <param name="secondary">This will be the colour of the second, fourth, sixth, etc. row</param>
+		/// <param name="rowStartAt">Which row the stripe effect will start at.</param>
+		public void AddStripeRibbonsToRows(Color? primary = null, Color? secondary = null, int rowStartAt = 1)
+		{
+			// Default options in case no colours were specified.
+			primary = primary is null ? Color.FromArgb(255, 255, 255) : primary;
+			secondary = secondary is null ? Color.FromArgb(250, 250, 255) : secondary;
+
+			// Precache the table size.
+			Size tableSize = TableSize;
+
+			for (int i = rowStartAt; i <= tableSize.Height; i++)
+			{
+				TableRow row = GetRow(i);
+
+				// Account for the offset of the "rowStartAt" so take it away in the calculations.
+				if ((i - rowStartAt) % 2 == 0)
+				{
+					row.RowBG = primary.Value;
+				}
+				else
+				{
+					row.RowBG = secondary.Value;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Produces an image of the table in full. Returns a <see cref="Bitmap"/> object which can then be used for any other purpose such as saving directly to a file or overlapping to an existing image.
 		/// </summary>
 		/// <returns>A bitmap object which is the table visualized as an image.</returns>
@@ -351,17 +382,12 @@ namespace ImgTableDataExporter
 					};
 
 					// Positioning of content.
-					SizeF size = cell.Content.GetContentSize(graphics);
-					
-					// At the moment, the content will be aligned left and vertically centred.
-					// To prevent overlapping content, this is a rectangle which defines the boundaries for the text where if the text doesnt fit, it will simply be cut off.
-					// TODO: Add options for content alignment in both axes.
-					RectangleF contentPosition = new RectangleF()
+					SizeF contentSize = cell.Content.GetContentSize(graphics);
+					Point relativeCellPosition = cell.ContentAlignment.Align(cell.CellSize, contentSize);
+					Point contentPosition = new Point()
 					{
-						X = cellBounds.X,
-						Y = cellBounds.Y + ((cell.CellSize.Height / 2) - (size.Height / 2)),
-						Width = cellBounds.Width,
-						Height = cellBounds.Height
+						X = cellPixelCoordinates.X + relativeCellPosition.X,
+						Y = cellPixelCoordinates.Y + relativeCellPosition.Y
 					};
 
 					// Now just simply draw the content onto the image.

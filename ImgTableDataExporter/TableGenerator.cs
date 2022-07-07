@@ -12,6 +12,8 @@ using ImgTableDataExporter;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Drawing.Text;
+using System.Drawing.Drawing2D;
 using ImgTableDataExporter.DataStructures;
 using ImgTableDataExporter.ImageData;
 using ImgTableDataExporter.TableStructure;
@@ -317,9 +319,8 @@ namespace ImgTableDataExporter
 		/// Resizes each column to fit the content of each cell. Calling this method will ensure that all the content is not cut off/overlapping other cells.
 		/// </summary>
 		/// <param name="overflow">How many extra pixels each column should be extended by.</param>
-		public void ExpandContentToColumns(int overflow = 5)
+		public void ExpandContentToColumns(uint overflow = 5)
 		{
-			// TODO: Make an equivelant for rows. (When alignment features are added.)
 			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
 			Section tableSize = TableSize;
 
@@ -329,7 +330,26 @@ namespace ImgTableDataExporter
 				float maxWidth = 0;
 				column.Select(x => x.Content.GetContentSize(graphics).Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
 
-				column.Width = (int)maxWidth + overflow;
+				column.Width = (int)(maxWidth + overflow);
+			}
+		}
+
+		/// <summary>
+		/// Resizes each row to fit the content of each cell. Calling this method will ensure that all the content is not cut off/overlapping other cells.
+		/// </summary>
+		/// <param name="overflow">How many extra pixels each row should be extended by.</param>
+		public void ExpandContentToRows(int overflow = 5)
+		{
+			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
+			Section tableSize = TableSize;
+
+			for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
+			{
+				TableRow row = GetRow(r);
+				float maxHeight = 0;
+				row.Select(x => x.Content.GetContentSize(graphics, new Size(x.CellSize.Width, int.MaxValue)).Height).ForEach(x => maxHeight = x > maxHeight ? x : maxHeight);
+
+				row.Height = (int)maxHeight + overflow;
 			}
 		}
 
@@ -377,7 +397,7 @@ namespace ImgTableDataExporter
 			// Since we know the direct pixel dimensions of the table, the bitmap can be created right away and be written to using the Graphics class.
 			Bitmap image = new Bitmap((int)tableDimensions.Width + 1, (int)tableDimensions.Height + 1);
 			Graphics graphics = Graphics.FromImage(image);
-			graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+			graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
 
 			// Precache all the rows of the table as these only need to be got once instead of through every column iteration.
 			TableRow[] rows = Enumerable.Range(0, TableSize.Bottom + 1).Select(i => GetRow(i)).ToArray();
@@ -416,7 +436,7 @@ namespace ImgTableDataExporter
 					}
 
 					// Positioning of content.
-					SizeF contentSize = cell.Content.GetContentSize(graphics);
+					SizeF contentSize = cell.Content.GetContentSize(graphics, cell.CellSize);
 					Point relativeCellPosition = cell.ContentAlignment.Align(cell.CellSize, contentSize);
 					Point contentPosition = new Point()
 					{
@@ -425,7 +445,7 @@ namespace ImgTableDataExporter
 					};
 
 					// Now just simply draw the content onto the image.
-					cell.Content.WriteContent(graphics, contentPosition);
+					cell.Content.WriteContent(graphics, new RectangleF(contentPosition, contentSize));
 				}
 
 				accumulatedWidth += column.Width;

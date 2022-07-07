@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -70,7 +71,6 @@ namespace ImgTableDataExporter.ImageData
 					Y = data.Y + (corners.TopLeft > corners.TopRight ? corners.TopLeft : corners.TopRight),
 					Width = data.Width - ((corners.TopLeft > corners.BottomLeft ? corners.TopLeft : corners.BottomLeft) + (corners.TopRight > corners.BottomRight ? corners.TopRight : corners.BottomRight)),
 					Height = data.Height - ((corners.TopLeft > corners.TopRight ? corners.TopLeft : corners.TopRight) + (corners.BottomLeft > corners.BottomRight ? corners.BottomLeft : corners.BottomRight))
-
 				}
 			});
 
@@ -122,8 +122,12 @@ namespace ImgTableDataExporter.ImageData
 		/// <param name="sweepAngle">How many degrees the arc will extend.</param>
 		public static void FillArc(this Graphics graphics, Pen pen, Color color, Rectangle rect, int startAngle, int sweepAngle)
 		{
+			var smoothingMode = graphics.SmoothingMode;
+
 			graphics.FillPie(new SolidBrush(color), rect, startAngle, sweepAngle);
+			graphics.SmoothingMode = SmoothingMode.AntiAlias;
 			graphics.DrawArc(pen, rect, startAngle, sweepAngle);
+			graphics.SmoothingMode = smoothingMode;
 		}
 	}
 }

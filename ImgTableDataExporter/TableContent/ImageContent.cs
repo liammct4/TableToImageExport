@@ -14,6 +14,9 @@ namespace ImgTableDataExporter.TableContent
 	/// </summary>
 	public class ImageContent : ITableContent
 	{
+		/// <summary>
+		/// The image which this object stores.
+		/// </summary>
 		public Image Content
 		{
 			get => _content;
@@ -48,5 +51,15 @@ namespace ImgTableDataExporter.TableContent
 		/// </summary>
 		/// <param name="size">The new size of the image.</param>
 		public void StretchImageToSize(Size size) => imageSize = size - new Size(1, 1);
+		/// <summary>
+		/// Resizes the image to the specified width while still keeping the original aspect ratio. This does NOT change the original size of the image in <see cref="Content"/>, this will only change the rendered size.
+		/// </summary>
+		/// <param name="width">The new width the image will be rendered as.</param>
+		public void ScaleImageToWidth(int width) => imageSize = new Size(width, (int)((width / (double)imageSize.Width) * imageSize.Height));
+		/// <summary>
+		/// Resizes the image to the specified height while still keeping the original aspect ratio. This does NOT change the original size of the image in <see cref="Content"/>, this will only change the rendered size.
+		/// </summary>
+		/// <param name="height">The new height the image will be rendered as.</param>
+		public void ScaleImageToHeight(int height) => imageSize = new Size((int)((height / (double)imageSize.Height) * imageSize.Width), height);
 	}
 }

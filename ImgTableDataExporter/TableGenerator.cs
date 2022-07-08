@@ -32,6 +32,7 @@ namespace ImgTableDataExporter
 		public static Color DefaultBorderColour = Color.Black;
 		/// <summary>
 		/// Stores every cell within the table, the table is structured per cell (see <see cref="TableCell.TablePosition"/>) so the order of the list does not matter. Changes made to this list will update any <see cref="TableColumn"/> and <see cref="TableRow"/> automatically.<br/><br/>
+		/// Do not add to this manually if there are many <see cref="ITableCollection"/> objects, use other methods such as <see cref="Load(TableCell[])"/> or 
 		/// 
 		/// Cells should only be added to this if the cell belongs to this table. (Where <see cref="TableCell.Parent"/> is this <see cref="TableGenerator"/> instance).<br/><br/>
 		/// 
@@ -57,9 +58,11 @@ namespace ImgTableDataExporter
 				}
 
 				_cells = value;
+				_cells.CollectionChanged += Cells_CollectionChanged;
 				TableCollectionInvalidated?.Invoke();
 			}
 		}
+
 		/// <summary>
 		/// When exporting the table, this will determine how rounded the corners will be, set to 0 to get a square table/grid and to any positive 
 		/// </summary>
@@ -89,7 +92,7 @@ namespace ImgTableDataExporter
 
 					max.X = cell.TablePosition.X > max.X ? cell.TablePosition.X : max.X;
 					max.Y = cell.TablePosition.Y > max.Y ? cell.TablePosition.Y : max.Y;
-				};
+				}
 
 				return new Section()
 				{
@@ -131,6 +134,7 @@ namespace ImgTableDataExporter
 			}
 		}
 		private ObservableCollection<TableCell> _cells;
+		private bool suppressRefresh;
 
 		public TableGenerator()
 		{
@@ -153,30 +157,6 @@ namespace ImgTableDataExporter
 		{
 			// TODO: Add support for TSV (possibly using the same CSV parser library).
 			Load(csvStream);
-		}
-
-		/// <summary>
-		/// Updates each <see cref="TableRow"/> and <see cref="TableColumn"/> object linked to this table as well as checking if the newly added cells
-		/// </summary>
-		/// <exception cref="TableMismatchException">Thrown when any newly added items to the list <see cref="Cells"/> belongs to the wrong table.</exception>
-		private void Cells_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			// Check that the new cells belong to this table.
-			if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Replace)
-			{
-				foreach (object item in e.NewItems)
-				{
-					TableCell cell = (TableCell)item;
-
-					if (!cell.Parent.Equals(this))
-					{
-						throw new TableMismatchException(cell, this);
-					}
-				}
-			}			
-
-			// Updates each linked TableRow and TableColumn linked to the table. This will notify each TableRow and TableColumn object to call their own Refresh() methods. (Provided in the interface ITableCollection interface).
-			TableStructureChanged_Event(null, null);
 		}
 
 		/// <summary>
@@ -220,6 +200,23 @@ namespace ImgTableDataExporter
 					}
 				}
 			}
+		}
+		
+		/// <summary>
+		/// Adds cells in bulk to <see cref="Cells"/>, use this instead of manually adding items to <see cref="Cells"/> for better performance.
+		/// </summary>
+		/// <param name="cells">The cells to add.</param>
+		public void AddInBulkCells(IEnumerable<TableCell> cells)
+		{
+			// Causes table collections (TableRow and TableColumn) to temporarily pause refreshing to improve performance.
+			suppressRefresh = true;
+
+			// Add each cell in bulk.
+			cells.ForEach(x => Cells.Add(x));
+
+			// Now resume as normal and refresh every ITableCollection.
+			suppressRefresh = false;
+			TableStructureChanged_Event(null, null);
 		}
 
 		/// <summary>
@@ -319,7 +316,7 @@ namespace ImgTableDataExporter
 		/// Resizes each column to fit the content of each cell. Calling this method will ensure that all the content is not cut off/overlapping other cells.
 		/// </summary>
 		/// <param name="overflow">How many extra pixels each column should be extended by.</param>
-		public void ExpandContentToColumns(uint overflow = 5)
+		public void ExpandColumnsContent(uint overflow = 5)
 		{
 			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
 			Section tableSize = TableSize;
@@ -338,7 +335,7 @@ namespace ImgTableDataExporter
 		/// Resizes each row to fit the content of each cell. Calling this method will ensure that all the content is not cut off/overlapping other cells.
 		/// </summary>
 		/// <param name="overflow">How many extra pixels each row should be extended by.</param>
-		public void ExpandContentToRows(int overflow = 5)
+		public void ExpandRowsToContent(int overflow = 5)
 		{
 			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
 			Section tableSize = TableSize;
@@ -499,7 +496,7 @@ namespace ImgTableDataExporter
 		/// <param name="objects">The collection of data to add which is of type <typeparamref name="T"/></param>
 		/// <param name="order">The objects to retrieve and in what order separated by dots.<br/></param>
 		/// <param name="startAt">The top left position where the newly added cells from the data should be added to.</param> 
-		public void SerializeFromObjects<T>(ICollection<T> objects, string order, Vector2I startAt)
+		public void LoadFromObjects<T>(ICollection<T> objects, string order, Vector2I startAt)
 		{
 			string[] properties = order.Split('.');
 			Type objectType = typeof(T);
@@ -532,11 +529,39 @@ namespace ImgTableDataExporter
 		}
 
 		/// <summary>
+		/// Updates each <see cref="TableRow"/> and <see cref="TableColumn"/> object linked to this table as well as checking if the newly added cells
+		/// </summary>
+		/// <exception cref="TableMismatchException">Thrown when any newly added items to the list <see cref="Cells"/> belongs to the wrong table.</exception>
+		private void Cells_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			// Check that the new cells belong to this table.
+			if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Replace)
+			{
+				foreach (object item in e.NewItems)
+				{
+					TableCell cell = (TableCell)item;
+
+					if (!cell.Parent.Equals(this))
+					{
+						throw new TableMismatchException(cell, this);
+					}
+				}
+			}
+
+			// Unnecessarily refreshing each ITableCollection can become very performance intensive so whenever data needs to be added in bulk, wait until the data has been added then refresh.
+			if (suppressRefresh)
+			{
+				// Updates each linked TableRow and TableColumn linked to the table. This will notify each TableRow and TableColumn object to call their own Refresh() methods. (Provided in the interface ITableCollection interface).
+				TableStructureChanged_Event(null, null);
+			}
+		}
+
+		/// <summary>
 		/// Updates each <see cref="TableRow"/> and <see cref="TableColumn"/> by their .Refresh() methods (provided in <see cref="ITableCollection.Refresh()"/>)
 		/// </summary>
 		/// <param name="cellChanged"></param>
 		/// <param name="e"></param>
-		public void TableStructureChanged_Event(TableCell cellChanged, TableStructureChangedEventArgs e)
+		internal void TableStructureChanged_Event(TableCell cellChanged, TableStructureChangedEventArgs e)
 		{
 			TableCollectionInvalidated?.Invoke();
 		}

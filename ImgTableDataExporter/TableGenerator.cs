@@ -180,12 +180,8 @@ namespace ImgTableDataExporter
 			{
 				using (CsvParser csv = new CsvParser(reader, CultureInfo.InvariantCulture))
 				{
-					// Clear previous session.
-					// TODO: Allow data loaded to be added onto existing data. For now just clear the table completely.
-					Cells.Clear();
-
-					List<string[]> rows = new List<string[]>();
-					suppressRefresh = true;
+					// TODO: Allow data loaded to be added onto existing data.
+					List<TableCell> newCells = new List<TableCell>();
 					while (csv.Read())
 					{
 						// Each string in a row represents the value of one cell, give each cell a default configuration. (Default cell values are static members of TableCell.
@@ -194,14 +190,57 @@ namespace ImgTableDataExporter
 						for (int i = 0; i < row.Length; i++)
 						{
 							string item = row[i].PerLineTrim();
-							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), new TextContent(item)));
+							newCells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), new TextContent(item)));
 						}
 					}
 
+					Cells = new ObservableCollection<TableCell>(newCells);
 				}
 			}
 		}
-		
+
+		/// <summary>
+		/// Goes through each object of <typeparamref name="T"/> and adds a new row according to properties specified in <paramref name="order"/>.
+		/// Uses reflection.<br/><br/>
+		/// 
+		/// You can specify what properties to retrieve and the order to retrieve them by <paramref name="order"/> parameter.<br/><br/>
+		/// E.g. A record with properties ID, Name, Phone Number and Address where the properties ID, Name and PhoneNumber are desired can be retrieved by setting order to <code>"ID.Name.PhoneNumber"</code><br/><br/>
+		/// 
+		/// This will retrieve the ID, Name and PhoneNumber properties from each object and add them as a row.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="objects">The collection of data to add which is of type <typeparamref name="T"/></param>
+		/// <param name="order">The objects to retrieve and in what order separated by dots.<br/></param>
+		/// <param name="startAt">The top left position where the newly added cells from the data should be added to.</param> 
+		public void LoadFromObjects<T>(ICollection<T> objects, string order, Vector2I startAt)
+		{
+			string[] properties = order.Split('.');
+			Type objectType = typeof(T);
+
+			List<TableCell> cells = new List<TableCell>();
+
+			for (int r = startAt.Y; r < objects.Count; r++)
+			{
+				T item = objects.ElementAt(r);
+				int column = 0;
+
+				foreach (string property in properties)
+				{
+					string value = objectType.GetProperty(property).GetValue(item, null).ToString();
+
+					TableCell cell = new TableCell(this)
+					{
+						TablePosition = new Vector2I(column++, r),
+						Content = new TextContent(value)
+					};
+
+					cells.Add(cell);
+				}
+			}
+
+			Cells = new ObservableCollection<TableCell>(cells);
+		}
+
 		/// <summary>
 		/// Adds cells in bulk to <see cref="Cells"/>, use this instead of manually adding items to <see cref="Cells"/> for better performance.
 		/// </summary>
@@ -481,51 +520,6 @@ namespace ImgTableDataExporter
 		{
 			get => this[new Vector2I(column, row)];
 			set => this[new Vector2I(column, row)] = value;
-		}
-
-		/// <summary>
-		/// Goes through each object of <typeparamref name="T"/> and adds a new row according to properties specified in <paramref name="order"/>.
-		/// Uses reflection.<br/><br/>
-		/// 
-		/// You can specify what properties to retrieve and the order to retrieve them by <paramref name="order"/> parameter.<br/><br/>
-		/// E.g. A record with properties ID, Name, Phone Number and Address where the properties ID, Name and PhoneNumber are desired can be retrieved by setting order to <code>"ID.Name.PhoneNumber"</code><br/><br/>
-		/// 
-		/// This will retrieve the ID, Name and PhoneNumber properties from each object and add them as a row.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="objects">The collection of data to add which is of type <typeparamref name="T"/></param>
-		/// <param name="order">The objects to retrieve and in what order separated by dots.<br/></param>
-		/// <param name="startAt">The top left position where the newly added cells from the data should be added to.</param> 
-		public void LoadFromObjects<T>(ICollection<T> objects, string order, Vector2I startAt)
-		{
-			string[] properties = order.Split('.');
-			Type objectType = typeof(T);
-
-			List<TableCell> cells = new List<TableCell>();
-
-			for (int r = startAt.Y; r < objects.Count; r++)
-			{
-				T item = objects.ElementAt(r);
-				int column = 0;
-
-				foreach (string property in properties)
-				{
-					string value = objectType.GetProperty(property).GetValue(item, null).ToString();
-
-					TableCell cell = new TableCell(this)
-					{
-						TablePosition = new Vector2I(column++, r),
-						Content = new TextContent(value)
-					};
-
-					cells.Add(cell);
-				}
-			}
-
-			foreach (TableCell cell in cells)
-			{
-				Cells.Add(cell);
-			}
 		}
 
 		/// <summary>

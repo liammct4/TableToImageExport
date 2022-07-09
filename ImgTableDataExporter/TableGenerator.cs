@@ -155,7 +155,6 @@ namespace ImgTableDataExporter
 		/// </summary>
 		public TableGenerator(Stream csvStream) : this()
 		{
-			// TODO: Add support for TSV (possibly using the same CSV parser library).
 			Load(csvStream);
 		}
 
@@ -186,7 +185,7 @@ namespace ImgTableDataExporter
 					Cells.Clear();
 
 					List<string[]> rows = new List<string[]>();
-
+					suppressRefresh = true;
 					while (csv.Read())
 					{
 						// Each string in a row represents the value of one cell, give each cell a default configuration. (Default cell values are static members of TableCell.
@@ -198,6 +197,7 @@ namespace ImgTableDataExporter
 							Cells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), new TextContent(item)));
 						}
 					}
+
 				}
 			}
 		}

@@ -198,7 +198,6 @@ namespace ImgTableDataExporter
 						}
 					}
 
-					suppressRefresh = false;
 				}
 			}
 		}

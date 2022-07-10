@@ -7,8 +7,8 @@
     <ProjectGuid>{B41FFCAE-B85E-41C9-827F-1CD51054B258}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ImgTableDataExporter</RootNamespace>
-    <AssemblyName>ImgTableDataExporter</AssemblyName>
+    <RootNamespace>TableToImageExport</RootNamespace>
+    <AssemblyName>TableToImageExport</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

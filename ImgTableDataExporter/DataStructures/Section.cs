@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImgTableDataExporter.DataStructures
+namespace TableToImageExport.DataStructures
 {
 	/// <summary>
 	/// Represents an area.

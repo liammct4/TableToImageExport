@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
-using ImgTableDataExporter;
+using TableToImageExport;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Drawing.Text;
 using System.Drawing.Drawing2D;
-using ImgTableDataExporter.DataStructures;
-using ImgTableDataExporter.ImageData;
-using ImgTableDataExporter.TableStructure;
-using ImgTableDataExporter.Utilities;
-using ImgTableDataExporter.TableContent;
-using ImgTableDataExporter.TableContent.ContentStructure;
+using TableToImageExport.DataStructures;
+using TableToImageExport.ImageData;
+using TableToImageExport.TableStructure;
+using TableToImageExport.Utilities;
+using TableToImageExport.TableContent;
+using TableToImageExport.TableContent.ContentStructure;
 
-namespace ImgTableDataExporter
+namespace TableToImageExport
 {
 	/// <summary>
 	/// Class for manipulating tablular data and producing images. Can also process CSV data.
@@ -238,6 +238,8 @@ namespace ImgTableDataExporter
 				}
 			}
 
+			cells.AddRange(Cells);
+
 			Cells = new ObservableCollection<TableCell>(cells);
 		}
 
@@ -355,7 +357,7 @@ namespace ImgTableDataExporter
 		/// Resizes each column to fit the content of each cell. Calling this method will ensure that all the content is not cut off/overlapping other cells.
 		/// </summary>
 		/// <param name="overflow">How many extra pixels each column should be extended by.</param>
-		public void ExpandColumnsContent(uint overflow = 5)
+		public void ExpandColumnsToContent(uint overflow = 5)
 		{
 			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
 			Section tableSize = TableSize;

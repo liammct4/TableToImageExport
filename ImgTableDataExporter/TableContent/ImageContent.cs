@@ -4,10 +4,10 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ImgTableDataExporter.TableStructure;
-using ImgTableDataExporter.Utilities;
+using TableToImageExport.TableStructure;
+using TableToImageExport.Utilities;
 
-namespace ImgTableDataExporter.TableContent
+namespace TableToImageExport.TableContent
 {
 	/// <summary>
 	/// This type of content stores and creates an image inside a cell.

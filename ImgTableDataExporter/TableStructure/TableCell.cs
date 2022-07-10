@@ -5,11 +5,11 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using ImgTableDataExporter.DataStructures;
-using ImgTableDataExporter.TableContent;
-using ImgTableDataExporter.TableContent.ContentStructure;
+using TableToImageExport.DataStructures;
+using TableToImageExport.TableContent;
+using TableToImageExport.TableContent.ContentStructure;
 
-namespace ImgTableDataExporter.TableStructure
+namespace TableToImageExport.TableStructure
 {
 	/// <summary>
 	/// Represents one cell within a table, use the dedicated methods <see cref="TableGenerator.CreateNewCell(Vector2I, ITableContent)"/> to create a new cell in a table.

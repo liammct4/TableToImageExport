@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImgTableDataExporter.Utilities
+namespace TableToImageExport.Utilities
 {
 	/// <summary>
 	/// Provides extension methods for different classes/structs

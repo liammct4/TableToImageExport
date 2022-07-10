@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
-using ImgTableDataExporter.TableContent;
+using TableToImageExport.TableContent;
 
-namespace ImgTableDataExporter.TableStructure
+namespace TableToImageExport.TableStructure
 {
 	/// <summary>
 	/// Represents one row within a table, provides easy access to cells on a certain row, this will be updated automatically in the event the table changes.<br/><br/>

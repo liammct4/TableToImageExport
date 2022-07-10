@@ -5,9 +5,9 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ImgTableDataExporter.DataStructures;
+using TableToImageExport.DataStructures;
 
-namespace ImgTableDataExporter.ImageData
+namespace TableToImageExport.ImageData
 {
 	/// <summary>
 	/// Provides extension methods for the <see cref="Graphics"/> class to provide extra missing functionality.

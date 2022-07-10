@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ImgTableDataExporter;
-using ImgTableDataExporter.DataStructures;
-using ImgTableDataExporter.TableStructure;
+using TableToImageExport;
+using TableToImageExport.DataStructures;
+using TableToImageExport.TableStructure;
 
-namespace ImgTableDataExporter
+namespace TableToImageExport
 {
 	/// <summary>
 	/// Invoked when the structure of a table has been changed, applies when cells are added, removed or when their position has changed.

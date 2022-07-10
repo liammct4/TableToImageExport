@@ -9,7 +9,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
 
-namespace ImgTableDataExporter.Utilities
+namespace TableToImageExport.Utilities
 {
 	/// <summary>
 	/// Provides generic utility methods for any purpose.

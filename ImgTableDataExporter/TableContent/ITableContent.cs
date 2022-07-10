@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImgTableDataExporter.TableContent
+namespace TableToImageExport.TableContent
 {
 	/// <summary>
 	/// This interface represents one type of content located within a cell.

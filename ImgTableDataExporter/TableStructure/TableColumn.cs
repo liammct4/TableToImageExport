@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace ImgTableDataExporter.TableStructure
+namespace TableToImageExport.TableStructure
 {
 	/// <summary>
 	/// Represents one column within a table, provides easy access to cells in a certain column, this will be updated automatically in the event the table changes.<br/><br/>

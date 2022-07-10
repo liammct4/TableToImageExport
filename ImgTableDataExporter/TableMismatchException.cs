@@ -1,11 +1,11 @@
-﻿using ImgTableDataExporter.TableStructure;
+﻿using TableToImageExport.TableStructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImgTableDataExporter
+namespace TableToImageExport
 {
 	/// <summary>
 	/// An exception thrown when a <see cref="TableCell"/> object was attempted to be added to a <see cref="TableGenerator"/> object where the <see cref="TableCell.Parent"/> is a different table.

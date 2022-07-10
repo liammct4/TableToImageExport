@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImgTableDataExporter.TableContent
+namespace TableToImageExport.TableContent
 {
 	/// <summary>
 	/// Represents the content of one cell. This content type holds a string used to write plain text inside of a cell.

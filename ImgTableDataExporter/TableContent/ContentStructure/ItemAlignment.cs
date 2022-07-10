@@ -1,4 +1,4 @@
-﻿using ImgTableDataExporter.DataStructures;
+﻿using TableToImageExport.DataStructures;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImgTableDataExporter.TableContent.ContentStructure
+namespace TableToImageExport.TableContent.ContentStructure
 {
 	/// <summary>
 	/// Stores the relative position of an object within the bounds of a provided container.

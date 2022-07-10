@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ImgTableDataExporter")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("TableToImageExport")]
+[assembly: AssemblyDescription("A C# library for processing csv/tabular data into images.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ImgTableDataExporter")]
+[assembly: AssemblyProduct("TableToImageExport")]
 [assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

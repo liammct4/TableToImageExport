@@ -24,7 +24,7 @@ using TableToImageExport.TableContent.ContentStructure;
 namespace TableToImageExport
 {
 	/// <summary>
-	/// Class for manipulating tablular data and producing images. Can also process CSV data.
+	/// Class for manipulating tablular data and producing images. Can also process CSV and TSV data.
 	/// </summary>
 	public class TableGenerator
 	{
@@ -143,42 +143,58 @@ namespace TableToImageExport
 		}
 
 		/// <summary>
-		/// Loads data from a CSV file located at the file path.
+		/// Loads data from a CSV/TSV file located at the file path.
 		/// </summary>
-		public TableGenerator(string filename) : this()
+		public TableGenerator(string filename, DataFormats format = DataFormats.CSV) : this()
 		{
-			Load(File.OpenRead(filename));
-		}
-
-		/// <summary>
-		/// Loads data from a stream containing CSV data.
-		/// </summary>
-		public TableGenerator(Stream csvStream) : this()
-		{
-			Load(csvStream);
-		}
-
-		/// <summary>
-		/// Loads data from a CSV file.
-		/// </summary>
-		/// <param name="filename">The path of the CSV file.</param>
-		public void Load(string filename)
-		{
-			using (FileStream fs = File.OpenRead(filename))
+			using (Stream fs = File.OpenRead(filename))
 			{
-				Load(fs);
+				Load(fs, format);
 			}
 		}
 
 		/// <summary>
-		/// Loads data from a stream containing CSV data.
+		/// Loads data from a stream containing CSV/TSV data.
 		/// </summary>
-		/// <param name="csvStream">The stream to load from.</param>
-		public void Load(Stream csvStream)
+		public TableGenerator(Stream dataStream, DataFormats format = DataFormats.CSV) : this()
 		{
-			using (StreamReader reader = new StreamReader(csvStream))
+			Load(dataStream, format);
+		}
+
+		/// <summary>
+		/// Loads data from a CSV/TSV file.
+		/// </summary>
+		/// <param name="filename">The path of the CSV/TSV file.</param>
+		/// <param name="format">The format which the data is in, can be CSV or TSV.</param>
+		public void Load(string filename, DataFormats format = DataFormats.CSV)
+		{
+			using (FileStream fs = File.OpenRead(filename))
 			{
-				using (CsvParser csv = new CsvParser(reader, CultureInfo.InvariantCulture))
+				Load(fs, format);
+			}
+		}
+
+		/// <summary>
+		/// Loads data from a stream containing either CSV or TSV data (specified by <paramref name="format"/>).
+		/// </summary>
+		/// <param name="dataStream">The data to load from.</param>
+		public void Load(Stream dataStream, DataFormats format = DataFormats.CSV)
+		{
+			using (StreamReader reader = new StreamReader(dataStream))
+			{
+				string delimiter = ",";
+
+				if (format is DataFormats.TSV)
+				{
+					delimiter = "\t";
+				}
+
+				CsvConfiguration parserConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
+				{
+					Delimiter = delimiter
+				};
+
+				using (CsvParser csv = new CsvParser(reader, parserConfiguration))
 				{
 					// TODO: Allow data loaded to be added onto existing data.
 					List<TableCell> newCells = new List<TableCell>();
@@ -197,6 +213,15 @@ namespace TableToImageExport
 					Cells = new ObservableCollection<TableCell>(newCells);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Loads a list of created cells. This does NOT append the cells onto the existing collection of cells, this will wipe every cell and add the new cells. Use <see cref="AddInBulkCells(IEnumerable{TableCell})"/> for adding many cells.
+		/// </summary>
+		/// <param name="cells"></param>
+		public void Load(TableCell[] cells)
+		{
+			Cells = new ObservableCollection<TableCell>(cells);
 		}
 
 		/// <summary>
@@ -277,15 +302,6 @@ namespace TableToImageExport
 		/// </summary>
 		/// <returns>A new cell located within the table.</returns>
 		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new TableCell(this, tablePosition, data, contentAlignment, cellSize, BG);
-
-		/// <summary>
-		/// Loads a list of created cells.
-		/// </summary>
-		/// <param name="cells"></param>
-		public void Load(TableCell[] cells)
-		{
-			Cells = new ObservableCollection<TableCell>(cells);
-		}
 		
 		/// <summary>
 		/// Gets a collection of cells apart of this table where the cells are on row <paramref name="index"/>.<br/>

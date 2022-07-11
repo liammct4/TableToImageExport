@@ -76,6 +76,7 @@
     <Compile Include="TableContent\ContentStructure\HorizontalAlignment.cs" />
     <Compile Include="TableContent\ContentStructure\ItemAlignment.cs" />
     <Compile Include="TableContent\ContentStructure\VerticalAlignment.cs" />
+    <Compile Include="TableContent\DateContent.cs" />
     <Compile Include="TableContent\ImageContent.cs" />
     <Compile Include="TableContent\ITableContent.cs" />
     <Compile Include="TableContent\TextContent.cs" />

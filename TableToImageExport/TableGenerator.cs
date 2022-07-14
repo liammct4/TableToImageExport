@@ -304,26 +304,26 @@ namespace TableToImageExport
 		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new TableCell(this, tablePosition, data, contentAlignment, cellSize, BG);
 		
 		/// <summary>
-		/// Gets a collection of cells apart of this table where the cells are on row <paramref name="index"/>.<br/>
-		/// The <see cref="TableRow.Cells"/> list is a read only collection of cells from this table which are on the row specified by <see cref="TableRow.RowNumber"/>, (set to <paramref name="index"/>).<br/><br/>
+		/// Gets a collection of cells apart of this table where the cells are on row <paramref name="rowNumber"/>.<br/>
+		/// The <see cref="TableRow.Cells"/> list is a read only collection of cells from this table which are on the row specified by <see cref="TableRow.RowNumber"/>, (set to <paramref name="rowNumber"/>).<br/><br/>
 		/// 
 		/// Whenever the table has been changed (cells added, removed or positions modified) every <see cref="TableColumn"/> linked to this table will be updated.<br/><br/>
 		/// This is useful as if you want to set a universal property for every cell on a row (such as <see cref="TableCell.BG"/>) you can set <see cref="TableRow.RowBG"/> which will update each cell's BG property on that row.
 		/// </summary>
-		/// <param name="index">The row to retrieve.</param>
+		/// <param name="rowNumber">The row to retrieve.</param>
 		/// <returns>An iterable collection of cells where each cell is on the row according to <see cref="TableRow.RowNumber"/></returns>
-		public TableRow GetRow(int index) => TableRow.FromTable(this, index);
+		public TableRow GetRow(int rowNumber) => TableRow.FromTable(this, rowNumber);
 
 		/// <summary>
-		/// Gets a collection of cells apart of this table where the cells are in column <paramref name="index"/>.<br/>
-		/// The <see cref="TableColumn.Cells"/> list is a read only collection of cells from this table which are in the column specified by <see cref="TableColumn.ColumnNumber"/>, (set to <paramref name="index"/>).<br/><br/>
+		/// Gets a collection of cells apart of this table where the cells are in column <paramref name="columnNumber"/>.<br/>
+		/// The <see cref="TableColumn.Cells"/> list is a read only collection of cells from this table which are in the column specified by <see cref="TableColumn.ColumnNumber"/>, (set to <paramref name="columnNumber"/>).<br/><br/>
 		/// 
 		/// Whenever the table has been changed (cells added, removed or positions modified) every <see cref="TableColumn"/> linked to this table will be updated.<br/><br/>
 		/// This is useful as if you want to set a universal property for every cell in a column (such as <see cref="TableCell.CellSize"/> width) you can set <see cref="TableColumn.Width"/> which will update each cell's width to be the value provided.
 		/// </summary>
-		/// <param name="index">The column to retrieve</param>
+		/// <param name="columnNumber">The column to retrieve</param>
 		/// <returns>An iterable collection of cells where each cell is in the column according to <see cref="TableColumn.RowNumber"/></returns>
-		public TableColumn GetColumn(int index) => TableColumn.FromTable(this, index);
+		public TableColumn GetColumn(int columnNumber) => TableColumn.FromTable(this, columnNumber);
 
 		/// <summary>
 		/// Removes missing spaces in the table. If there are gaps within the table, empty cells will be added so that there is a visible cell at each position.

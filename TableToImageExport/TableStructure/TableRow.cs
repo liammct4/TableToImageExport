@@ -41,7 +41,7 @@ namespace TableToImageExport.TableStructure
 		{
 			get
 			{
-				// Gets the cell with the maximum height;
+				// Gets the cell with the maximum height.
 				int maxHeight = 0;
 
 				foreach (TableCell cell in Cells)

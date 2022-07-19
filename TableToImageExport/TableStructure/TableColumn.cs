@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using TableToImageExport.TableContent;
 
 namespace TableToImageExport.TableStructure
 {
@@ -40,7 +41,7 @@ namespace TableToImageExport.TableStructure
 		{
 			get
 			{
-				// Gets the cell with the maximum width;
+				// Gets the cell with the maximum width.
 				int maxWidth = 0;
 
 				foreach (TableCell cell in Cells)
@@ -58,6 +59,53 @@ namespace TableToImageExport.TableStructure
 				foreach (TableCell cell in Cells)
 				{
 					cell.CellSize = new Size(value, cell.CellSize.Height);
+				}
+			}
+		}
+		/// <summary>
+		/// Universal property for setting the font of each cell within this column.
+		/// </summary>
+		public Font ColumnFont
+		{
+			set
+			{
+				foreach (TableCell cell in Cells)
+				{
+					if (cell.Content is TextContent content)
+					{
+						content.Font = value;
+					}
+				}
+			}
+		}
+		/// <summary>
+		/// Universal property for setting the text colour of each cell within this column.<br/><br/>
+		/// 
+		/// This will only be applied to cells with content of type <see cref="TextContent"/>.
+		/// </summary>
+		public Color ColumnTextBG
+		{
+			set
+			{
+				foreach (TableCell cell in Cells)
+				{
+					if (cell.Content is TextContent content)
+					{
+						content.TextBG = value;
+					}
+				}
+			}
+		}
+		/// <summary>
+		/// Universal property for setting the background colour of each cell within this column.
+		/// </summary>
+		public Color ColumnBG
+		{
+			set
+			{
+				foreach (TableCell cell in Cells)
+				{
+					cell.BG = value;
 				}
 			}
 		}

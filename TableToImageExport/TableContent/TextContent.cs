@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ImageSharp;
 
 namespace TableToImageExport.TableContent
 {
@@ -11,9 +12,8 @@ namespace TableToImageExport.TableContent
 	/// </summary>
 	public class TextContent : ITableContent
 	{
-		// TODO: Convert to SkiaSharp.
-		public static Font DefaultFont = new Font("Times New Roman", 15);
-		public static Color DefaultTextBG = Color.Black;
+		public static SKFont DefaultFont = new(SKTypeface.FromFamilyName("Times New Roman"), 15);
+		public static SKColor DefaultTextBG = new(0, 0, 0);
 		/// <summary>
 		/// The text which this object stores.
 		/// </summary>
@@ -21,11 +21,11 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// The font which will be used to draw the text onto the table, this stores both the font family and the size.
 		/// </summary>
-		public Font Font { get; set; } = DefaultFont; // TODO: Convert to SkiaSharp.
+		public SKFont Font { get; set; } = DefaultFont; // TODO: Convert to ImageSharp.
 		/// <summary>
 		/// The colour the font will be rendered in.
 		/// </summary>
-		public Color TextBG { get; set; } = DefaultTextBG;
+		public SKColor TextBG { get; set; } = DefaultTextBG;
 		/// <summary>
 		/// Creates a new content object with the specified text, equivelant to setting <see cref="Content"/>.
 		/// </summary>

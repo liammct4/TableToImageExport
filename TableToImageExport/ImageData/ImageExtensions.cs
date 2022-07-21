@@ -21,7 +21,7 @@ namespace TableToImageExport.ImageData
 		/// <param name="border">The border colour of the rectangle.</param>
 		public static void DrawRoundedBox(this Graphics graphics, Rectangle data, Color colour, Bounds corners, Color? border = null)
 		{
-			// TODO: Convert to SkiaSharp.
+			// TODO: Convert to ImageSharp.
 			if (!border.HasValue)
 			{
 				border = Color.Black;
@@ -121,7 +121,7 @@ namespace TableToImageExport.ImageData
 		/// <param name="sweepAngle">How many degrees the arc will extend.</param>
 		public static void FillArc(this Graphics graphics, Pen pen, Color color, Rectangle rect, int startAngle, int sweepAngle)
 		{
-			// TODO: Convert to SkiaSharp.
+			// TODO: Convert to ImageSharp.
 			var smoothingMode = graphics.SmoothingMode;
 
 			graphics.FillPie(new SolidBrush(color), rect, startAngle, sweepAngle);

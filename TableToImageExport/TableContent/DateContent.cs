@@ -12,7 +12,7 @@ namespace TableToImageExport.TableContent
 	/// </summary>
 	public class DateContent : ITableContent
 	{
-		// TODO: Convert to SkiaSharp.
+		// TODO: Convert to ImageSharp.
 		public static Font DefaultFont => TextContent.DefaultFont;
 		public static Color DefaultTextBG => TextContent.DefaultTextBG;
 		public static string DefaultDateFormat = "d";
@@ -32,7 +32,7 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// The font which will be used to write the date onto the table, this stores both the font family and the size.
 		/// </summary>
-		public Font Font { get; set; } = DefaultFont; // TODO: Convert to SkiaSharp.
+		public Font Font { get; set; } = DefaultFont; // TODO: Convert to ImageSharp.
 		/// <summary>
 		/// The colour the font will be rendered in.
 		/// </summary>

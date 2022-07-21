@@ -64,7 +64,7 @@ namespace TableToImageExport.TableStructure
 		/// <summary>
 		/// Universal property for setting the font of each cell within this row.
 		/// </summary>
-		public Font RowFont // TODO: Convert to SkiaSharp.
+		public Font RowFont // TODO: Convert to ImageSharp.
 		{
 			set
 			{

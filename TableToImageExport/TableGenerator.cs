@@ -17,6 +17,7 @@ using TableToImageExport.TableStructure;
 using TableToImageExport.Utilities;
 using TableToImageExport.TableContent;
 using TableToImageExport.TableContent.ContentStructure;
+using SixLabors.ImageSharp.Drawing;
 
 namespace TableToImageExport
 {
@@ -26,7 +27,7 @@ namespace TableToImageExport
 	public class TableGenerator
 	{
 		public static uint DefaultCornerRadius = 5;
-		public static Color DefaultBorderColour = Color.Black; // TODO: Convert to SkiaSharp.
+		public static Color DefaultBorderColour = Color.Black; // TODO: Convert to ImageSharp.
 		/// <summary>
 		/// Stores every cell within the table, the table is structured per cell (see <see cref="TableCell.TablePosition"/>) so the order of the list does not matter. Changes made to this list will update any <see cref="TableColumn"/> and <see cref="TableRow"/> automatically.<br/><br/>
 		/// Do not add to this manually if there are many <see cref="ITableCollection"/> objects, use other methods such as <see cref="Load(TableCell[])"/> or 
@@ -298,7 +299,7 @@ namespace TableToImageExport
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell located within the table.</returns>
-		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new TableCell(this, tablePosition, data, contentAlignment, cellSize, BG); // TODO: Convert to SkiaSharp.
+		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new TableCell(this, tablePosition, data, contentAlignment, cellSize, BG); // TODO: Convert to ImageSharp.
 
 		/// <summary>
 		/// Gets a collection of cells apart of this table where the cells are on row <paramref name="rowNumber"/>.<br/>
@@ -350,7 +351,7 @@ namespace TableToImageExport
 					// Important to remember: indexing an ITableCollection will not throw an IndexOutOfRangeException, it will only return null if none was found.
 					if (cell == null)
 					{
-						// TODO: Convert to SkiaSharp.
+						// TODO: Convert to ImageSharp.
 						TableCell fillerCell = new TableCell(this)
 						{
 							TablePosition = new Vector2I(c, r),
@@ -373,7 +374,7 @@ namespace TableToImageExport
 		/// <param name="overflow">How many extra pixels each column should be extended by.</param>
 		public void ExpandColumnsToContent(uint overflow = 5)
 		{
-			// TODO: Convert to SkiaSharp.
+			// TODO: Convert to ImageSharp.
 			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
 			Section tableSize = TableSize;
 
@@ -393,7 +394,7 @@ namespace TableToImageExport
 		/// <param name="overflow">How many extra pixels each row should be extended by.</param>
 		public void ExpandRowsToContent(int overflow = 5)
 		{
-			// TODO: Convert to SkiaSharp.
+			// TODO: Convert to ImageSharp.
 			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
 			Section tableSize = TableSize;
 
@@ -444,7 +445,7 @@ namespace TableToImageExport
 		/// <returns>A bitmap object which is the table visualized as an image.</returns>
 		public Bitmap ExportTable()
 		{
-			// TODO: Convert to SkiaSharp.
+			// TODO: Convert to ImageSharp.
 
 			// Precache the appropriate information about the table as these are very complicated. Use instead of directly accessing property.
 			Section tableSize = TableSize;

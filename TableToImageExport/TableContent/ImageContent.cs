@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,12 +39,12 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// Draws an image onto a table at the specified position.
 		/// </summary>
-		public void WriteContent(Graphics graphics, RectangleF position) => graphics.DrawImage(Content, position.X + 1, position.Y + 1, imageSize.Width, imageSize.Height);
+		public void WriteContent(Graphics graphics, RectangleF position) => graphics.DrawImage(Content, position.X + 1, position.Y + 1, imageSize.Width, imageSize.Height); // TODO: Convert to SkiaSharp.
 		/// <summary>
 		/// Gets the size of the image in pixels.
 		/// </summary>
 		/// <returns>The size of the image.</returns>
-		public SizeF GetContentSize(Graphics graphics = null, Size? sizeOfCell = null) => imageSize;
+		public SizeF GetContentSize(Graphics graphics = null, Size? sizeOfCell = null) => imageSize; // TODO: Convert to SkiaSharp.
 		/// <summary>
 		/// Changes the size of the image when rendered onto a table. This does NOT change the original size of the image in <see cref="Content"/>, this will only change the rendered size.
 		/// </summary>

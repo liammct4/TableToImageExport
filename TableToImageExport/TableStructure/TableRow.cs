@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,7 +64,7 @@ namespace TableToImageExport.TableStructure
 		/// <summary>
 		/// Universal property for setting the font of each cell within this row.
 		/// </summary>
-		public Font RowFont
+		public Font RowFont // TODO: Convert to SkiaSharp.
 		{
 			set
 			{

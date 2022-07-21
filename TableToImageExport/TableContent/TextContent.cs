@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +11,7 @@ namespace TableToImageExport.TableContent
 	/// </summary>
 	public class TextContent : ITableContent
 	{
+		// TODO: Convert to SkiaSharp.
 		public static Font DefaultFont = new Font("Times New Roman", 15);
 		public static Color DefaultTextBG = Color.Black;
 		/// <summary>
@@ -21,7 +21,7 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// The font which will be used to draw the text onto the table, this stores both the font family and the size.
 		/// </summary>
-		public Font Font { get; set; } = DefaultFont;
+		public Font Font { get; set; } = DefaultFont; // TODO: Convert to SkiaSharp.
 		/// <summary>
 		/// The colour the font will be rendered in.
 		/// </summary>

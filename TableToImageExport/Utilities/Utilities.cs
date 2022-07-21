@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -75,7 +74,7 @@ namespace TableToImageExport.Utilities
 		/// <param name="str">The string to trim.</param>
 		/// <returns>A string where the end of each line has been trimmed.</returns>
 		public static string PerLineTrimEnd(this string str) => PerLineTrimBase(str, x => x.TrimEnd());
-		public static SizeF MeasureString(string text, Font font, SizeF layoutArea) => graphics.MeasureString(text, font, layoutArea);
+		public static SizeF MeasureString(string text, Font font, SizeF layoutArea) => graphics.MeasureString(text, font, layoutArea); // TODO: Convert to SkiaSharp.
 		public static SizeF MeasureString(string text, Font font) => graphics.MeasureString(text, font);
 	}
 }

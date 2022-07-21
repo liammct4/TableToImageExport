@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -13,6 +12,7 @@ namespace TableToImageExport.TableContent
 	/// </summary>
 	public class DateContent : ITableContent
 	{
+		// TODO: Convert to SkiaSharp.
 		public static Font DefaultFont => TextContent.DefaultFont;
 		public static Color DefaultTextBG => TextContent.DefaultTextBG;
 		public static string DefaultDateFormat = "d";
@@ -32,7 +32,7 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// The font which will be used to write the date onto the table, this stores both the font family and the size.
 		/// </summary>
-		public Font Font { get; set; } = DefaultFont;
+		public Font Font { get; set; } = DefaultFont; // TODO: Convert to SkiaSharp.
 		/// <summary>
 		/// The colour the font will be rendered in.
 		/// </summary>

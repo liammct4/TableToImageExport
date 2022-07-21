@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp;
 
 namespace TableToImageExport.Utilities
 {
@@ -39,5 +40,11 @@ namespace TableToImageExport.Utilities
 
 			return -1;
 		}
+
+		/// <summary>
+		/// Gets the size of this rectangle.
+		/// </summary>
+		/// <returns>The size of this rectangle.</returns>
+		public static SizeF Size(this FontRectangle rectangle) => new SizeF(rectangle.Width, rectangle.Height);
 	}
 }

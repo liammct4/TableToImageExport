@@ -3,7 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ImageSharp;
+using SixLabors.ImageSharp;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
+using TableToImageExport.Utilities;
 
 namespace TableToImageExport.TableContent
 {
@@ -12,8 +18,8 @@ namespace TableToImageExport.TableContent
 	/// </summary>
 	public class TextContent : ITableContent
 	{
-		public static SKFont DefaultFont = new(SKTypeface.FromFamilyName("Times New Roman"), 15);
-		public static SKColor DefaultTextBG = new(0, 0, 0);
+		public static Font DefaultFont = new(SystemFonts.Get("Times New Roman"), 15);
+		public static Color DefaultTextBG = new Argb32(0, 0, 0);
 		/// <summary>
 		/// The text which this object stores.
 		/// </summary>
@@ -21,11 +27,11 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// The font which will be used to draw the text onto the table, this stores both the font family and the size.
 		/// </summary>
-		public SKFont Font { get; set; } = DefaultFont; // TODO: Convert to ImageSharp.
+		public Font Font { get; set; } = DefaultFont;
 		/// <summary>
 		/// The colour the font will be rendered in.
 		/// </summary>
-		public SKColor TextBG { get; set; } = DefaultTextBG;
+		public Color TextBG { get; set; } = DefaultTextBG;
 		/// <summary>
 		/// Creates a new content object with the specified text, equivelant to setting <see cref="Content"/>.
 		/// </summary>
@@ -34,20 +40,33 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// Draws the text onto the table using the specified settings <see cref="Font"/> and <see cref="TextBG"/>.
 		/// </summary>
-		public void WriteContent(Graphics graphics, RectangleF layout) => graphics.DrawString(Content, Font, new SolidBrush(TextBG), layout);
+		public void WriteContent(IImageProcessingContext graphics, RectangleF layout)
+		{
+			TextOptions options = new(Font)
+			{
+				WrappingLength = layout.Width,
+				Origin = new PointF(layout.Left, layout.Top)
+			};
+
+			graphics.DrawText(options, Content, TextBG);
+		}
 		/// <summary>
 		/// Returns the size of the text in pixels when drawn using the specfied <see cref="Font"/> of this object.
 		/// </summary>
-		/// <param name="graphics"></param>
+		/// <param name="sizeOfCell">The size of the parent cell which this content belongs to.</param>
 		/// <returns>The size of the text.</returns>
-		public SizeF GetContentSize(Graphics graphics, Size? sizeOfCell)
+		public SizeF GetContentSize(Size? sizeOfCell)
 		{
-			if (!sizeOfCell.HasValue)
+			TextOptions options = new(Font);
+
+			if (sizeOfCell is null)
 			{
-				return graphics.MeasureString(Content, Font);
+				return TextMeasurer.Measure(Content, options).Size();
 			}
 
-			return graphics.MeasureString(Content, Font, sizeOfCell.Value);
+			options.WrappingLength = sizeOfCell.Value.Width;
+
+			return TextMeasurer.Measure(Content, options).Size();
 		}
 	}
 }

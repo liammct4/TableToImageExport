@@ -1,10 +1,10 @@
-﻿using TableToImageExport.DataStructures;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp;
+using TableToImageExport.DataStructures;
 
 namespace TableToImageExport.TableContent.ContentStructure
 {
@@ -51,11 +51,11 @@ namespace TableToImageExport.TableContent.ContentStructure
 		public static ItemAlignment Centre => new ItemAlignment(HorizontalAlignment.Centre, VerticalAlignment.Centre);
 
 		/// <summary>
-		/// Determines the horizontal position of an object, used to calculate in the <see cref="Align(RectangleF, SizeF)"/> method. 
+		/// Determines the horizontal position of an object, used to calculate in the <see cref="Align(SizeF, SizeF)"/> method. 
 		/// </summary>
 		public HorizontalAlignment Horizontal;
 		/// <summary>
-		/// Determines the vertical position of an object, used to calculate in the <see cref="Align(RectangleF, SizeF)"/> method. 
+		/// Determines the vertical position of an object, used to calculate in the <see cref="Align(SizeF, SizeF)"/> method. 
 		/// </summary>
 		public VerticalAlignment Vertical;
 		/// <summary>
@@ -79,40 +79,26 @@ namespace TableToImageExport.TableContent.ContentStructure
 		/// <param name="containerSize">Size of the container.</param>
 		/// <param name="objectSize">Size of the object.</param>
 		/// <returns>The relative position of the object within the container.</returns>
-		public Point Align(SizeF containerSize, SizeF objectSize) => new Point()
+		public Point Align(SizeF containerSize, SizeF objectSize) => new()
 		{
 			X = (int)GetHorizontal(objectSize.Width, containerSize.Width - 1),
 			Y = (int)GetVertical(objectSize.Height, containerSize.Height - 1)
 		};
 
-		private float GetHorizontal(float objectWidth, float containerWidth)
+		private float GetHorizontal(float objectWidth, float containerWidth) => Horizontal switch
 		{
-			switch (Horizontal)
-			{
-				case HorizontalAlignment.Left:
-					return 0 + Margin.X;
-				case HorizontalAlignment.Centre:
-					return (containerWidth / 2) - (objectWidth / 2);
-				case HorizontalAlignment.Right:
-					return containerWidth - (objectWidth + Margin.X);
-				default:
-					return 0;
-			}
-		}
+			HorizontalAlignment.Left => 0 + Margin.X,
+			HorizontalAlignment.Centre => (containerWidth / 2) - (objectWidth / 2),
+			HorizontalAlignment.Right => containerWidth - (objectWidth + Margin.X),
+			_ => 0,
+		};
 
-		private float GetVertical(float objectHeight, float containerHeight)
+		private float GetVertical(float objectHeight, float containerHeight) => Vertical switch
 		{
-			switch (Vertical)
-			{
-				case VerticalAlignment.Top:
-					return 0 + Margin.Y;
-				case VerticalAlignment.Centre:
-					return (containerHeight / 2) - (objectHeight / 2);
-				case VerticalAlignment.Bottom:
-					return containerHeight - (objectHeight + Margin.Y);
-				default:
-					return 0;
-			}
-		}
+			VerticalAlignment.Top => 0 + Margin.Y,
+			VerticalAlignment.Centre => (containerHeight / 2) - (objectHeight / 2),
+			VerticalAlignment.Bottom => containerHeight - (objectHeight + Margin.Y),
+			_ => 0,
+		};
 	}
 }

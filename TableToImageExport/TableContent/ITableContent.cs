@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Drawing.Processing;
 
 namespace TableToImageExport.TableContent
 {
@@ -16,12 +20,12 @@ namespace TableToImageExport.TableContent
 		/// </summary>
 		/// <param name="graphics">The image to draw on.</param>
 		/// <param name="position">The position and area of the content.</param>
-		void WriteContent(Graphics graphics, RectangleF position); // TODO: Convert to ImageSharp.
+		void WriteContent(IImageProcessingContext graphics, RectangleF position);
 		/// <summary>
 		/// Gets the size of the content item in pixels.
 		/// </summary>
-		/// <param name="graphics">Needed (depending on content type) to measure the size of the content.</param>
+		/// <param name="sizeOfCell">The size of the parent cell which this content belongs to.</param>
 		/// <returns>The size of the content in pixels.</returns>
-		SizeF GetContentSize(Graphics graphics = null, Size? sizeOfCell = null); // TODO: Convert to ImageSharp.
+		SizeF GetContentSize(Size? sizeOfCell = null);
 	}
 }

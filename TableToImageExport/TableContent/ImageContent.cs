@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Processing;
 using TableToImageExport.TableStructure;
 using TableToImageExport.Utilities;
 
@@ -22,7 +26,7 @@ namespace TableToImageExport.TableContent
 			set
 			{
 				_content = value;
-				imageSize = value.Size;
+				imageSize = new Size(value.Width, value.Height);
 			}
 		}
 		private Size imageSize;
@@ -35,16 +39,20 @@ namespace TableToImageExport.TableContent
 		/// Loads an image from an image file.
 		/// </summary>
 		/// <param name="filename">The location of the file.</param>
-		public ImageContent(string filename) => Content = Image.FromFile(filename);
+		public ImageContent(string filename) => Content = Image.Load(filename);
 		/// <summary>
 		/// Draws an image onto a table at the specified position.
 		/// </summary>
-		public void WriteContent(Graphics graphics, RectangleF position) => graphics.DrawImage(Content, position.X + 1, position.Y + 1, imageSize.Width, imageSize.Height); // TODO: Convert to ImageSharp.
+		public void WriteContent(IImageProcessingContext graphics, RectangleF position)
+		{
+			Image resizedClone = Content.Clone(i => i.Resize(imageSize));
+			graphics.DrawImage(resizedClone, new Point((int)(position.X + 1), (int)(position.Y + 1)), 1);
+		}
 		/// <summary>
 		/// Gets the size of the image in pixels.
 		/// </summary>
 		/// <returns>The size of the image.</returns>
-		public SizeF GetContentSize(Graphics graphics = null, Size? sizeOfCell = null) => imageSize; // TODO: Convert to ImageSharp.
+		public SizeF GetContentSize(Size? sizeOfCell = null) => imageSize;
 		/// <summary>
 		/// Changes the size of the image when rendered onto a table. This does NOT change the original size of the image in <see cref="Content"/>, this will only change the rendered size.
 		/// </summary>

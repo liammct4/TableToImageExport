@@ -4,6 +4,12 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Drawing;
+using TableToImageExport.Utilities;
 
 namespace TableToImageExport.TableContent
 {
@@ -12,7 +18,6 @@ namespace TableToImageExport.TableContent
 	/// </summary>
 	public class DateContent : ITableContent
 	{
-		// TODO: Convert to ImageSharp.
 		public static Font DefaultFont => TextContent.DefaultFont;
 		public static Color DefaultTextBG => TextContent.DefaultTextBG;
 		public static string DefaultDateFormat = "d";
@@ -32,7 +37,7 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// The font which will be used to write the date onto the table, this stores both the font family and the size.
 		/// </summary>
-		public Font Font { get; set; } = DefaultFont; // TODO: Convert to ImageSharp.
+		public Font Font { get; set; } = DefaultFont;
 		/// <summary>
 		/// The colour the font will be rendered in.
 		/// </summary>
@@ -45,20 +50,33 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// Writes the date onto the table using the specified settings <see cref="Font"/> and <see cref="TextBG"/>.
 		/// </summary>
-		public void WriteContent(Graphics graphics, RectangleF layout) => graphics.DrawString(Content.ToString(OutputFormat, Culture), Font, new SolidBrush(TextBG), layout);
+		public void WriteContent(IImageProcessingContext graphics, RectangleF layout)
+		{
+			TextOptions options = new(Font)
+			{
+				WrappingLength = layout.Width,
+				Origin = new PointF(layout.Left, layout.Top)
+			};
+
+			graphics.DrawText(options, Content.ToString(OutputFormat, Culture), TextBG);
+		}
 		/// <summary>
 		/// Returns the size of the text in pixels when drawn using the specfied <see cref="Font"/> of this object.
 		/// </summary>
 		/// <param name="graphics"></param>
 		/// <returns>The size of the text when the date is written.</returns>
-		public SizeF GetContentSize(Graphics graphics, Size? sizeOfCell)
+		public SizeF GetContentSize(Size? sizeOfCell)
 		{
-			if (!sizeOfCell.HasValue)
+			TextOptions options = new(Font);
+
+			if (sizeOfCell is null)
 			{
-				return graphics.MeasureString(Content.ToString(OutputFormat, Culture), Font);
+				return TextMeasurer.Measure(Content.ToString(OutputFormat, Culture), options).Size();
 			}
 
-			return graphics.MeasureString(Content.ToString(OutputFormat, Culture), Font, sizeOfCell.Value);
+			options.WrappingLength = sizeOfCell.Value.Width;
+
+			return TextMeasurer.Measure(Content.ToString(OutputFormat, Culture), options).Size();
 		}
 	}
 }

@@ -34,6 +34,10 @@ namespace TableToImageExport.TableStructure
 		/// </summary>
 		public int ColumnNumber { get; internal set; }
 		/// <summary>
+		/// Returns the number of cells inside this column.
+		/// </summary>
+		public int CellCount => Cells.Count;
+		/// <summary>
 		/// When getting, this will return the width of the widest cell in this row.
 		/// 
 		/// When setting, this will set the width of each cell to the value provided.

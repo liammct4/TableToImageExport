@@ -46,7 +46,7 @@ namespace TableToImageExport.TableContent
 		public void WriteContent(IImageProcessingContext graphics, RectangleF position)
 		{
 			Image resizedClone = Content.Clone(i => i.Resize(imageSize));
-			graphics.DrawImage(resizedClone, new Point((int)(position.X + 1), (int)(position.Y + 1)), 1);
+			graphics.DrawImage(resizedClone, new Point((int)position.X, (int)position.Y), 1);
 		}
 		/// <summary>
 		/// Gets the size of the image in pixels.
@@ -57,7 +57,7 @@ namespace TableToImageExport.TableContent
 		/// Changes the size of the image when rendered onto a table. This does NOT change the original size of the image in <see cref="Content"/>, this will only change the rendered size.
 		/// </summary>
 		/// <param name="size">The new size of the image.</param>
-		public void StretchImageToSize(Size size) => imageSize = size - new Size(1, 1);
+		public void StretchImageToSize(Size size) => imageSize = size - new Size(2, 2);
 		/// <summary>
 		/// Resizes the image to the specified width while still keeping the original aspect ratio. This does NOT change the original size of the image in <see cref="Content"/>, this will only change the rendered size.
 		/// </summary>

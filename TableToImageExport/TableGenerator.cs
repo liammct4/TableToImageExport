@@ -123,13 +123,13 @@ namespace TableToImageExport
 				for (int c = tableSize.Left; c <= tableSize.Right; c++)
 				{
 					TableColumn column = GetColumn(c);
-					dimensions.Width += column.Width;
+					dimensions.Width += column.Width - 1;
 				}
 
 				for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 				{
 					TableRow row = GetRow(r);
-					dimensions.Height += row.Height;
+					dimensions.Height += row.Height - 1;
 				}
 
 				return dimensions;
@@ -220,8 +220,8 @@ namespace TableToImageExport
 		/// <summary>
 		/// Loads a list of created cells. This does NOT append the cells onto the existing collection of cells, this will wipe every cell and add the new cells. Use <see cref="AddInBulkCells(IEnumerable{TableCell})"/> for adding many cells.
 		/// </summary>
-		/// <param name="cells"></param>
-		public void Load(TableCell[] cells)
+		/// <param name="cells">The cells to load, the only cells which will be present in the table.</param>
+		public void Load(ICollection<TableCell> cells)
 		{
 			Cells = new ObservableCollection<TableCell>(cells);
 		}
@@ -246,7 +246,7 @@ namespace TableToImageExport
 
 			List<TableCell> cells = new List<TableCell>();
 
-			for (int r = startAt.Y; r < objects.Count; r++)
+			for (int r = 0; r < objects.Count; r++)
 			{
 				T item = objects.ElementAt(r);
 				int column = 0;
@@ -257,11 +257,12 @@ namespace TableToImageExport
 
 					TableCell cell = new TableCell(this)
 					{
-						TablePosition = new Vector2I(column++, r),
+						TablePosition = new Vector2I(column + startAt.X, r + startAt.Y),
 						Content = new TextContent(value)
 					};
 
 					cells.Add(cell);
+					column++;
 				}
 			}
 
@@ -292,11 +293,20 @@ namespace TableToImageExport
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell with the given content which has a set of default configuration values.</returns>
-		public TableCell CreateNewCell(Vector2I position, ITableContent content = null) => new TableCell(this)
+		public TableCell CreateNewCell(Vector2I position, ITableContent content = null) => new(this)
 		{
 			TablePosition = position,
 			Content = content
 		};
+
+		/// <summary>
+		/// Creates a new cell located within this table, with no parameters the cell is given default values as static members of <see cref="TableCell"/>.<br/><br/>
+		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
+		/// 
+		/// This will set the content to the provided string.
+		/// </summary>
+		/// <returns>A new cell with the given content which has a set of default configuration values.</returns>
+		public TableCell CreateNewCell(Vector2I position, string content) => CreateNewCell(position, new TextContent(content));
 
 		/// <summary>
 		/// Creates a new cell located within this table.<br/><br/>
@@ -331,7 +341,7 @@ namespace TableToImageExport
 		/// Removes missing spaces in the table. If there are gaps within the table, empty cells will be added so that there is a visible cell at each position.
 		/// </summary>
 		/// <returns>A list which contains all of the newly added cells.</returns>
-		public IList<TableCell> FillMissingGaps()
+		public ICollection<TableCell> FillMissingGaps()
 		{
 			// This will fill in all spaces between column 0 to column at tableSize.X and row 0 to row at tableSize.Y.
 			Section tableSize = TableSize;
@@ -387,6 +397,7 @@ namespace TableToImageExport
 				column.Select(x => x.Content.GetContentSize().Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
 
 				column.Width = (int)(maxWidth + overflow);
+				Console.WriteLine(maxWidth);
 			}
 		}
 
@@ -460,19 +471,21 @@ namespace TableToImageExport
 			{
 				TableColumn column = GetColumn(c);
 
+				int addedRow = 0;
 				foreach (TableCell cell in column)
 				{
 					int accumulatedHeight = 0;
 
-					for (int r = 0; r < cell.TablePosition.Y; r++)
+					for (int rh = 0; rh < cell.TablePosition.Y; rh++)
 					{
-						accumulatedHeight += rows[r].Height;
+						accumulatedHeight += rows[rh].Height;
 					}
 
 					// Establish the basic information about the cell on the image used later to draw.
-					Point cellPixelCoordinates = new Point(accumulatedWidth, accumulatedHeight);
+					Point cellPixelCoordinates = new Point(accumulatedWidth + 1 - c, accumulatedHeight + 1 - addedRow++);
 					Rectangle cellBounds = new Rectangle(cellPixelCoordinates, cell.CellSize);
-					Bounds corners = new Bounds()
+					
+					Bounds corners = new()
 					{
 						TopLeft = cell.TablePosition.X == tableSize.Left && cell.TablePosition.Y == tableSize.Top ? (int)CornerRadius : 0,
 						TopRight = cell.TablePosition.X == tableSize.Right && cell.TablePosition.Y == tableSize.Top ? (int)CornerRadius : 0,
@@ -516,7 +529,19 @@ namespace TableToImageExport
 		/// <returns>A cell at position <paramref name="position"/>.</returns>
 		public TableCell this[Vector2I position]
 		{
-			get => Cells.ElementAt(Cells.FindIndex(x => x.TablePosition == position));
+			get
+			{
+				int index = Cells.FindIndex(x => x.TablePosition == position);
+
+				if (index == -1)
+				{
+					return null;
+				}
+				else
+				{
+					return Cells.ElementAt(index);
+				}
+			}
 			set
 			{
 				// Indexing will directly replace a cell if there is already a cell at the position, otherwise, just insert it as normal.

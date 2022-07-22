@@ -34,6 +34,10 @@ namespace TableToImageExport.TableStructure
 		/// </summary>
 		public int RowNumber { get; internal set; }
 		/// <summary>
+		/// Returns the number of cells inside this row.
+		/// </summary>
+		public int CellCount => Cells.Count;
+		/// <summary>
 		/// When getting, this will return the height of the tallest cell in this row.
 		/// 
 		/// When setting, this will set the height of each cell to the value provided.

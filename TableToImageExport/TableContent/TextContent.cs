@@ -44,7 +44,7 @@ namespace TableToImageExport.TableContent
 		{
 			TextOptions options = new(Font)
 			{
-				WrappingLength = layout.Width,
+				WrappingLength = layout.Width + layout.Left,
 				Origin = new PointF(layout.Left, layout.Top)
 			};
 

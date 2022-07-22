@@ -25,6 +25,10 @@ namespace TableToImageExport.TableStructure
 		/// </summary>
 		TableGenerator Parent { get; }
 		/// <summary>
+		/// Returns the number of cells inside this collection.
+		/// </summary>
+		public int CellCount => Cells.Count;
+		/// <summary>
 		/// Updates <see cref="Cells"/> based on a condition.
 		/// </summary>
 		void Refresh();

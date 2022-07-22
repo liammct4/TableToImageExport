@@ -71,9 +71,9 @@ namespace TableToImageExport.ImageData
 			);
 
 			graphics
-				.Fill(new Color(new Argb32(252, 252, 252)), boxFill)
-				.Draw(new Pen(new Argb32(223, 250, 220), 1), path)
-				.DrawLines(options, new Pen(new Argb32(223, 250, 220), 1), new PointF(data.X + corners.TopLeft - 1, data.Y - 1), new PointF(data.X + data.Width - corners.TopRight - 2, data.Y - 1));
+				.Fill(colour, boxFill)
+				.Draw(new Pen(border.Value, 1), path)
+				.DrawLines(options, new Pen(border.Value, 1), new PointF(data.X + corners.TopLeft - 1, data.Y - 1), new PointF(data.X + data.Width - corners.TopRight - 2, data.Y - 1));
 		}
 	}
 }

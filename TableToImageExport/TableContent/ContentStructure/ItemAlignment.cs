@@ -70,7 +70,7 @@ namespace TableToImageExport.TableContent.ContentStructure
 		{
 			Horizontal = horizontal;
 			Vertical = vertical;
-			Margin = margin is null ? Vector2I.Empty : margin.Value;
+			Margin = margin is null ? new Vector2I(2) : margin.Value;
 		}
 
 		/// <summary>

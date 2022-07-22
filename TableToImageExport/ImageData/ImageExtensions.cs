@@ -26,13 +26,11 @@ namespace TableToImageExport.ImageData
 		/// <param name="border">The border colour of the rectangle.</param>
 		public static void DrawRoundedBox(this IImageProcessingContext graphics, Rectangle data, Color colour, Bounds corners, Color? border = null)
 		{
-			// TODO: Convert to ImageSharp.
 			if (!border.HasValue)
 			{
 				border = Color.Black;
 			}
 
-			/* start */
 			DrawingOptions options = new DrawingOptions()
 			{
 				GraphicsOptions = new GraphicsOptions()

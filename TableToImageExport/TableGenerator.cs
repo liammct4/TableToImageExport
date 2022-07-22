@@ -313,7 +313,7 @@ namespace TableToImageExport
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell located within the table.</returns>
-		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new TableCell(this, tablePosition, data, contentAlignment, cellSize, BG); // TODO: Convert to ImageSharp.
+		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new TableCell(this, tablePosition, data, contentAlignment, cellSize, BG);
 
 		/// <summary>
 		/// Gets a collection of cells apart of this table where the cells are on row <paramref name="rowNumber"/>.<br/>
@@ -365,7 +365,6 @@ namespace TableToImageExport
 					// Important to remember: indexing an ITableCollection will not throw an IndexOutOfRangeException, it will only return null if none was found.
 					if (cell == null)
 					{
-						// TODO: Convert to ImageSharp.
 						TableCell fillerCell = new TableCell(this)
 						{
 							TablePosition = new Vector2I(c, r),

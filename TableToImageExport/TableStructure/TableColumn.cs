@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SixLabors.Fonts;
+using SixLabors.ImageSharp;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -64,7 +66,7 @@ namespace TableToImageExport.TableStructure
 		/// <summary>
 		/// Universal property for setting the font of each cell within this column.
 		/// </summary>
-		public Font ColumnFont // TODO: Convert to ImageSharp.
+		public Font ColumnFont
 		{
 			set
 			{

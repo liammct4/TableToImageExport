@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using TableToImageExport.DataStructures;
 using TableToImageExport.TableContent;
 using TableToImageExport.TableContent.ContentStructure;
+using SixLabors.ImageSharp;
 
 namespace TableToImageExport.TableStructure
 {
@@ -16,7 +16,7 @@ namespace TableToImageExport.TableStructure
 	/// </summary>
 	public class TableCell
 	{
-		public static Size DefaultCellSize = new Size(100, 28);
+		public static Size DefaultCellSize = new(100, 28);
 		public static Color DefaultBG = Color.White;
 		public static ItemAlignment DefaultContentAlignment = ItemAlignment.CentreLeft;
 

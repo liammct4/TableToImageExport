@@ -18,6 +18,8 @@ using TableToImageExport.Utilities;
 using TableToImageExport.TableContent;
 using TableToImageExport.TableContent.ContentStructure;
 using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace TableToImageExport
 {
@@ -27,7 +29,7 @@ namespace TableToImageExport
 	public class TableGenerator
 	{
 		public static uint DefaultCornerRadius = 5;
-		public static Color DefaultBorderColour = Color.Black; // TODO: Convert to ImageSharp.
+		public static Color DefaultBorderColour = Color.Black;
 		/// <summary>
 		/// Stores every cell within the table, the table is structured per cell (see <see cref="TableCell.TablePosition"/>) so the order of the list does not matter. Changes made to this list will update any <see cref="TableColumn"/> and <see cref="TableRow"/> automatically.<br/><br/>
 		/// Do not add to this manually if there are many <see cref="ITableCollection"/> objects, use other methods such as <see cref="Load(TableCell[])"/> or 
@@ -374,15 +376,13 @@ namespace TableToImageExport
 		/// <param name="overflow">How many extra pixels each column should be extended by.</param>
 		public void ExpandColumnsToContent(uint overflow = 5)
 		{
-			// TODO: Convert to ImageSharp.
-			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
 			Section tableSize = TableSize;
 
 			for (int c = tableSize.Left; c <= tableSize.Right; c++)
 			{
 				TableColumn column = GetColumn(c);
 				float maxWidth = 0;
-				column.Select(x => x.Content.GetContentSize(graphics).Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
+				column.Select(x => x.Content.GetContentSize().Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
 
 				column.Width = (int)(maxWidth + overflow);
 			}
@@ -394,15 +394,13 @@ namespace TableToImageExport
 		/// <param name="overflow">How many extra pixels each row should be extended by.</param>
 		public void ExpandRowsToContent(int overflow = 5)
 		{
-			// TODO: Convert to ImageSharp.
-			Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
 			Section tableSize = TableSize;
 
 			for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 			{
 				TableRow row = GetRow(r);
 				float maxHeight = 0;
-				row.Select(x => x.Content.GetContentSize(graphics, new Size(x.CellSize.Width, int.MaxValue)).Height).ForEach(x => maxHeight = x > maxHeight ? x : maxHeight);
+				row.Select(x => x.Content.GetContentSize(new Size(x.CellSize.Width, int.MaxValue)).Height).ForEach(x => maxHeight = x > maxHeight ? x : maxHeight);
 
 				row.Height = (int)maxHeight + overflow;
 			}
@@ -417,8 +415,8 @@ namespace TableToImageExport
 		public void AddStripeRibbonsToRows(Color? primary = null, Color? secondary = null, int rowStartAt = 1)
 		{
 			// Default options in case no colours were specified.
-			primary = primary is null ? Color.FromArgb(255, 255, 255) : primary;
-			secondary = secondary is null ? Color.FromArgb(250, 250, 255) : secondary;
+			primary = primary is null ? new Argb32(255, 255, 255) : primary;
+			secondary = secondary is null ? new Argb32(250, 250, 255) : secondary;
 
 			// Precache the table size.
 			Section tableSize = TableSize;

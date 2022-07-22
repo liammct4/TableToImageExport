@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using TableToImageExport.TableContent;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp;
 
 namespace TableToImageExport.TableStructure
 {
@@ -64,7 +66,7 @@ namespace TableToImageExport.TableStructure
 		/// <summary>
 		/// Universal property for setting the font of each cell within this row.
 		/// </summary>
-		public Font RowFont // TODO: Convert to ImageSharp.
+		public Font RowFont
 		{
 			set
 			{

@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Determines how content within a cell will be aligned across the horizontal axis.
 	/// </summary>
-	public enum HorizontalAlignment
+	public enum HorizontalAlign
 	{
 		Left,
 		Centre,

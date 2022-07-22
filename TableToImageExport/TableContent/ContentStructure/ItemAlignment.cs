@@ -16,48 +16,48 @@ namespace TableToImageExport.TableContent.ContentStructure
 		/// <summary>
 		/// Gets a new alignment in the top left corner.
 		/// </summary>
-		public static ItemAlignment TopLeft => new ItemAlignment(HorizontalAlignment.Left, VerticalAlignment.Top);
+		public static ItemAlignment TopLeft => new ItemAlignment(HorizontalAlign.Left, VerticalAlign.Top);
 		/// <summary>
 		/// Gets a new alignment in the top right corner.
 		/// </summary>
-		public static ItemAlignment TopRight => new ItemAlignment(HorizontalAlignment.Right, VerticalAlignment.Top);
+		public static ItemAlignment TopRight => new ItemAlignment(HorizontalAlign.Right, VerticalAlign.Top);
 		/// <summary>
 		/// Gets a new alignment in the bottom right corner.
 		/// </summary>
-		public static ItemAlignment BottomRight => new ItemAlignment(HorizontalAlignment.Right, VerticalAlignment.Bottom);
+		public static ItemAlignment BottomRight => new ItemAlignment(HorizontalAlign.Right, VerticalAlign.Bottom);
 		/// <summary>
 		/// Gets a new alignment in the bottom left corner.
 		/// </summary>
-		public static ItemAlignment BottomLeft => new ItemAlignment(HorizontalAlignment.Left, VerticalAlignment.Bottom);
+		public static ItemAlignment BottomLeft => new ItemAlignment(HorizontalAlign.Left, VerticalAlign.Bottom);
 		/// <summary>
 		/// Gets a new alignment at the top and horizontally centred.
 		/// </summary>
-		public static ItemAlignment TopCentre => new ItemAlignment(HorizontalAlignment.Centre, VerticalAlignment.Top);
+		public static ItemAlignment TopCentre => new ItemAlignment(HorizontalAlign.Centre, VerticalAlign.Top);
 		/// <summary>
 		/// Gets a new alignment at the right and vertically centred.
 		/// </summary>
-		public static ItemAlignment CentreRight => new ItemAlignment(HorizontalAlignment.Right, VerticalAlignment.Centre);
+		public static ItemAlignment CentreRight => new ItemAlignment(HorizontalAlign.Right, VerticalAlign.Centre);
 		/// <summary>
 		/// Getsa new alignment at the bottom and horizontally centred.
 		/// </summary>
-		public static ItemAlignment BottomCentre => new ItemAlignment(HorizontalAlignment.Centre, VerticalAlignment.Bottom);
+		public static ItemAlignment BottomCentre => new ItemAlignment(HorizontalAlign.Centre, VerticalAlign.Bottom);
 		/// <summary>
 		/// Gets a new alignment on the left and vertically centred.
 		/// </summary>
-		public static ItemAlignment CentreLeft => new ItemAlignment(HorizontalAlignment.Left, VerticalAlignment.Centre);
+		public static ItemAlignment CentreLeft => new ItemAlignment(HorizontalAlign.Left, VerticalAlign.Centre);
 		/// <summary>
 		/// Gets a new alignment which is both horizontally and vertically centred.
 		/// </summary>
-		public static ItemAlignment Centre => new ItemAlignment(HorizontalAlignment.Centre, VerticalAlignment.Centre);
+		public static ItemAlignment Centre => new ItemAlignment(HorizontalAlign.Centre, VerticalAlign.Centre);
 
 		/// <summary>
 		/// Determines the horizontal position of an object, used to calculate in the <see cref="Align(SizeF, SizeF)"/> method. 
 		/// </summary>
-		public HorizontalAlignment Horizontal;
+		public HorizontalAlign Horizontal;
 		/// <summary>
 		/// Determines the vertical position of an object, used to calculate in the <see cref="Align(SizeF, SizeF)"/> method. 
 		/// </summary>
-		public VerticalAlignment Vertical;
+		public VerticalAlign Vertical;
 		/// <summary>
 		/// When aligned against the edge of a container, an object can have a margin from the container edge.<br/><br/>
 		/// The <see cref="Vector2I.X"/> determines the horizontal margin.<br/>
@@ -66,7 +66,7 @@ namespace TableToImageExport.TableContent.ContentStructure
 		/// </summary>
 		public Vector2I Margin;
 		
-		public ItemAlignment(HorizontalAlignment horizontal, VerticalAlignment vertical, Vector2I? margin = null)
+		public ItemAlignment(HorizontalAlign horizontal, VerticalAlign vertical, Vector2I? margin = null)
 		{
 			Horizontal = horizontal;
 			Vertical = vertical;
@@ -87,17 +87,17 @@ namespace TableToImageExport.TableContent.ContentStructure
 
 		private float GetHorizontal(float objectWidth, float containerWidth) => Horizontal switch
 		{
-			HorizontalAlignment.Left => 0 + Margin.X,
-			HorizontalAlignment.Centre => (containerWidth / 2) - (objectWidth / 2),
-			HorizontalAlignment.Right => containerWidth - (objectWidth + Margin.X),
+			HorizontalAlign.Left => 0 + Margin.X,
+			HorizontalAlign.Centre => (containerWidth / 2) - (objectWidth / 2),
+			HorizontalAlign.Right => containerWidth - (objectWidth + Margin.X),
 			_ => 0,
 		};
 
 		private float GetVertical(float objectHeight, float containerHeight) => Vertical switch
 		{
-			VerticalAlignment.Top => 0 + Margin.Y,
-			VerticalAlignment.Centre => (containerHeight / 2) - (objectHeight / 2),
-			VerticalAlignment.Bottom => containerHeight - (objectHeight + Margin.Y),
+			VerticalAlign.Top => 0 + Margin.Y,
+			VerticalAlign.Centre => (containerHeight / 2) - (objectHeight / 2),
+			VerticalAlign.Bottom => containerHeight - (objectHeight + Margin.Y),
 			_ => 0,
 		};
 	}

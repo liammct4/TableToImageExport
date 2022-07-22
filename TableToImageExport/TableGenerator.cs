@@ -397,7 +397,6 @@ namespace TableToImageExport
 				column.Select(x => x.Content.GetContentSize().Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
 
 				column.Width = (int)(maxWidth + overflow);
-				Console.WriteLine(maxWidth);
 			}
 		}
 

@@ -9,12 +9,12 @@ using SixLabors.ImageSharp;
 namespace TableToImageExport.Utilities
 {
 	/// <summary>
-	/// Provides extension methods for different classes/structs
+	/// Provides extension methods for different classes/structs.
 	/// </summary>
 	public static class Extensions
 	{
 		/// <summary>
-		/// Performs the specified action on each element of the <see cref="IEnumerable{T}"/>
+		/// Performs the specified action on each element of the <see cref="IEnumerable{T}"/>.
 		/// </summary>
 		public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
 		{
@@ -34,7 +34,6 @@ namespace TableToImageExport.Utilities
 				if (criteria(collection.ElementAt(i)))
 				{
 					return i;
-					
 				}
 			}
 

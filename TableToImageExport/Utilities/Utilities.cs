@@ -15,13 +15,6 @@ namespace TableToImageExport.Utilities
 	/// </summary>
 	public static class Utilities
 	{
-		private static readonly Graphics graphics;
-		static Utilities()
-		{
-			Bitmap utilityBitmap = new Bitmap(1, 1);
-			graphics = Graphics.FromImage(utilityBitmap);
-		}
-
 		// Taken from: https://stackoverflow.com/questions/1879395/how-do-i-generate-a-stream-from-a-string
 		public static Stream GenerateStreamFromString(string s)
 		{
@@ -74,7 +67,5 @@ namespace TableToImageExport.Utilities
 		/// <param name="str">The string to trim.</param>
 		/// <returns>A string where the end of each line has been trimmed.</returns>
 		public static string PerLineTrimEnd(this string str) => PerLineTrimBase(str, x => x.TrimEnd());
-		public static SizeF MeasureString(string text, Font font, SizeF layoutArea) => graphics.MeasureString(text, font, layoutArea); // TODO: Convert to ImageSharp.
-		public static SizeF MeasureString(string text, Font font) => graphics.MeasureString(text, font);
 	}
 }

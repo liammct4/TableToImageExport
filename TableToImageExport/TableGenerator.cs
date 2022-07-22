@@ -130,12 +130,18 @@ namespace TableToImageExport
 				{
 					TableColumn column = GetColumn(c);
 					dimensions.Width += column.Width - 1;
+
+					// The column collection only needs to be used once so dispose when done.
+					column.Dispose();
 				}
 
 				for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 				{
 					TableRow row = GetRow(r);
 					dimensions.Height += row.Height - 1;
+
+					// The row collection only needs to be used once so dispose when done.
+					row.Dispose();
 				}
 
 				return dimensions;
@@ -356,6 +362,8 @@ namespace TableToImageExport
 				// If the column has no missing spaces, the loop can be skipped to the next column.
 				if (column.Count() == tableSize.Bottom)
 				{
+					// If the column isn't being used anymore, make sure it is disposed of.
+					column.Dispose();
 					continue;
 				}
 
@@ -378,6 +386,9 @@ namespace TableToImageExport
 						addedCells.Add(fillerCell);
 					}
 				}
+
+				// The column is now redundant and can be disposed of.
+				column.Dispose();
 			}
 
 			return addedCells;
@@ -398,6 +409,9 @@ namespace TableToImageExport
 				column.Select(x => x.Content.GetContentSize().Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
 
 				column.Width = (int)(maxWidth + overflow);
+
+				// Remove each column used as they are now redundant.
+				column.Dispose();
 			}
 		}
 
@@ -416,6 +430,9 @@ namespace TableToImageExport
 				row.Select(x => x.Content.GetContentSize(new Size(x.CellSize.Width, int.MaxValue)).Height).ForEach(x => maxHeight = x > maxHeight ? x : maxHeight);
 
 				row.Height = (int)maxHeight + overflow;
+
+				// Remove each row used as they are now redundant.
+				row.Dispose();
 			}
 		}
 
@@ -447,6 +464,9 @@ namespace TableToImageExport
 				{
 					row.RowBG = secondary.Value;
 				}
+
+				// Remove each row used as they are now redundant.
+				row.Dispose();
 			}
 		}
 
@@ -515,7 +535,13 @@ namespace TableToImageExport
 				}
 
 				accumulatedWidth += column.Width;
+
+				// Dispose of the column now that it isn't needed anymore for performance.
+				column.Dispose();
 			}
+
+			// Don't forget to release each table collection used.
+			rows.ForEach(r => r.Dispose());
 
 			return image;
 		}

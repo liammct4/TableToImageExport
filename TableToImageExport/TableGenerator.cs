@@ -20,6 +20,8 @@ using TableToImageExport.TableContent.ContentStructure;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Drawing.Processing;
 
 namespace TableToImageExport
 {
@@ -441,18 +443,14 @@ namespace TableToImageExport
 		/// Produces an image of the table in full. Returns a <see cref="Bitmap"/> object which can then be used for any other purpose such as saving directly to a file or overlapping to an existing image.
 		/// </summary>
 		/// <returns>A bitmap object which is the table visualized as an image.</returns>
-		public Bitmap ExportTable()
+		public Image<Argb32> ExportTable()
 		{
-			// TODO: Convert to ImageSharp.
-
 			// Precache the appropriate information about the table as these are very complicated. Use instead of directly accessing property.
 			Section tableSize = TableSize;
 			SizeF tableDimensions = TableDimensions;
 
 			// Since we know the direct pixel dimensions of the table, the bitmap can be created right away and be written to using the Graphics class.
-			Bitmap image = new Bitmap((int)tableDimensions.Width + 1, (int)tableDimensions.Height + 1);
-			Graphics graphics = Graphics.FromImage(image);
-			graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
+			Image<Argb32> image = new((int)tableDimensions.Width + 1, (int)tableDimensions.Height + 1);
 
 			// Precache all the rows of the table as these only need to be got once instead of through every column iteration.
 			TableRow[] rows = Enumerable.Range(0, TableSize.Bottom + 1).Select(i => GetRow(i)).ToArray();
@@ -482,7 +480,7 @@ namespace TableToImageExport
 						BottomRight = cell.TablePosition.X == tableSize.Right && cell.TablePosition.Y == tableSize.Bottom ? (int)CornerRadius : 0
 					};
 
-					graphics.DrawRoundedBox(cellBounds, cell.BG, corners, BorderColour);
+					image.Mutate(g => g.DrawRoundedBox(cellBounds, cell.BG, corners, BorderColour));
 					accumulatedHeight += cell.CellSize.Height;
 
 					if (cell.Content is null)
@@ -491,7 +489,7 @@ namespace TableToImageExport
 					}
 
 					// Positioning of content.
-					SizeF contentSize = cell.Content.GetContentSize(graphics, cell.CellSize);
+					SizeF contentSize = cell.Content.GetContentSize(cell.CellSize);
 					Point relativeCellPosition = cell.ContentAlignment.Align(cell.CellSize, contentSize);
 					Point contentPosition = new Point()
 					{
@@ -500,7 +498,7 @@ namespace TableToImageExport
 					};
 
 					// Now just simply draw the content onto the image.
-					cell.Content.WriteContent(graphics, new RectangleF(contentPosition, contentSize));
+					image.Mutate(g => cell.Content.WriteContent(g, new RectangleF(contentPosition, contentSize)));
 				}
 
 				accumulatedWidth += column.Width;

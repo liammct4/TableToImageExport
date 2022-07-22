@@ -13,13 +13,14 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace TableToImageExport.ImageData
 {
 	/// <summary>
-	/// Provides extension methods for the <see cref="Graphics"/> class to provide extra missing functionality.
+	/// Provides extension methods for the <see cref="IImageProcessingContext"/> class to provide extra missing functionality.
 	/// </summary>
 	public static class ImageExtensions
 	{
 		/// <summary>
 		/// Draws a rectangular box with rounded corners specified by <paramref name="data"/>.
 		/// </summary>
+		/// <param name="graphics">The process to draw on.</param>
 		/// <param name="data">The rectangle area to fill.</param>
 		/// <param name="colour">The background colour of the rectangle.</param>
 		/// <param name="corners">The radius of each of the four corners of the rectangle.</param>
@@ -31,19 +32,13 @@ namespace TableToImageExport.ImageData
 				border = Color.Black;
 			}
 
-			DrawingOptions options = new DrawingOptions()
+			DrawingOptions options = new()
 			{
 				GraphicsOptions = new GraphicsOptions()
 				{
 					Antialias = false
 				}
 			};
-
-			Polygon triangle = new Polygon(
-				new LinearLineSegment(new PointF(100, 110), new PointF(110, 100)),
-				new LinearLineSegment(new PointF(110, 100), new PointF(110, 110)),
-				new LinearLineSegment(new PointF(110, 110), new PointF(100, 110))
-			);
 
 			ILineSegment topLeft = new EllipticalArcLineSegment(data.X + corners.TopLeft - 1, data.Y + corners.TopLeft - 2, corners.TopLeft, corners.TopLeft, 0, 180, 90, new System.Numerics.Matrix3x2(1, 0, 0, 1, 0, 1));
 			ILineSegment bottomLeft = new EllipticalArcLineSegment(data.X + corners.BottomLeft - 1, data.Y + data.Height - corners.BottomLeft - 2, corners.BottomLeft, corners.BottomLeft, 0, 270, 90, new System.Numerics.Matrix3x2(1, 0, 0, 1, 0, 1));

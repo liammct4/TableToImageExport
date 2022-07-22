@@ -30,11 +30,17 @@ namespace TableToImageExport
 	/// </summary>
 	public class TableGenerator
 	{
+		/// <summary>
+		/// Default Property: Used on property <see cref="CornerRadius"/> when no value is provided.
+		/// </summary>
 		public static uint DefaultCornerRadius = 5;
+		/// <summary>
+		/// Default Property: Used on property <see cref="BorderColour"/> when no value is provided.
+		/// </summary>
 		public static Color DefaultBorderColour = Color.Black;
 		/// <summary>
 		/// Stores every cell within the table, the table is structured per cell (see <see cref="TableCell.TablePosition"/>) so the order of the list does not matter. Changes made to this list will update any <see cref="TableColumn"/> and <see cref="TableRow"/> automatically.<br/><br/>
-		/// Do not add to this manually if there are many <see cref="ITableCollection"/> objects, use other methods such as <see cref="Load(TableCell[])"/> or 
+		/// Do not add to this manually if there are many <see cref="ITableCollection"/> objects, use other methods such as <see cref="Load(ICollection{TableCell})"/> or 
 		/// 
 		/// Cells should only be added to this if the cell belongs to this table. (Where <see cref="TableCell.Parent"/> is this <see cref="TableGenerator"/> instance).<br/><br/>
 		/// 
@@ -47,7 +53,7 @@ namespace TableToImageExport
 			{
 				if (value is null)
 				{
-					throw new ArgumentNullException("The table cannot be set to null.");
+					throw new ArgumentNullException(nameof(Cells), "The table cannot be set to null.");
 				}
 
 				// Check that the cell belongs to this table.
@@ -84,8 +90,8 @@ namespace TableToImageExport
 		{
 			get
 			{
-				Vector2I min = new Vector2I(int.MaxValue, int.MaxValue);
-				Vector2I max = new Vector2I(0, 0);
+				Vector2I min = new(int.MaxValue, int.MaxValue);
+				Vector2I max = new(0, 0);
 
 				foreach (TableCell cell in Cells)
 				{
@@ -137,7 +143,10 @@ namespace TableToImageExport
 		}
 		private ObservableCollection<TableCell> _cells;
 		private bool suppressRefresh;
-
+		
+		/// <summary>
+		/// Creates a new empty table. Use the load methods or manually add data to populate this table.
+		/// </summary>
 		public TableGenerator()
 		{
 			Cells = new ObservableCollection<TableCell>();
@@ -149,10 +158,8 @@ namespace TableToImageExport
 		/// </summary>
 		public TableGenerator(string filename, DataFormats format = DataFormats.CSV) : this()
 		{
-			using (Stream fs = File.OpenRead(filename))
-			{
-				Load(fs, format);
-			}
+			using Stream fs = File.OpenRead(filename);
+			Load(fs, format);
 		}
 
 		/// <summary>
@@ -170,51 +177,46 @@ namespace TableToImageExport
 		/// <param name="format">The format which the data is in, can be CSV or TSV.</param>
 		public void Load(string filename, DataFormats format = DataFormats.CSV)
 		{
-			using (FileStream fs = File.OpenRead(filename))
-			{
-				Load(fs, format);
-			}
+			using FileStream fs = File.OpenRead(filename);
+			Load(fs, format);
 		}
 
 		/// <summary>
 		/// Loads data from a stream containing either CSV or TSV data (specified by <paramref name="format"/>).
 		/// </summary>
 		/// <param name="dataStream">The data to load from.</param>
+		/// <param name="format">The data format which the data is stored as.</param>
 		public void Load(Stream dataStream, DataFormats format = DataFormats.CSV)
 		{
-			using (StreamReader reader = new StreamReader(dataStream))
+			using StreamReader reader = new(dataStream);
+			string delimiter = ",";
+
+			if (format is DataFormats.TSV)
 			{
-				string delimiter = ",";
+				delimiter = "\t";
+			}
 
-				if (format is DataFormats.TSV)
+			CsvConfiguration parserConfiguration = new(CultureInfo.InvariantCulture)
+			{
+				Delimiter = delimiter
+			};
+
+			using CsvParser csv = new(reader, parserConfiguration);
+			// TODO: Allow data loaded to be added onto existing data.
+			List<TableCell> newCells = new();
+			while (csv.Read())
+			{
+				// Each string in a row represents the value of one cell, give each cell a default configuration. (Default cell values are static members of TableCell.
+				string[] row = csv.Record;
+
+				for (int i = 0; i < row.Length; i++)
 				{
-					delimiter = "\t";
-				}
-
-				CsvConfiguration parserConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
-				{
-					Delimiter = delimiter
-				};
-
-				using (CsvParser csv = new CsvParser(reader, parserConfiguration))
-				{
-					// TODO: Allow data loaded to be added onto existing data.
-					List<TableCell> newCells = new List<TableCell>();
-					while (csv.Read())
-					{
-						// Each string in a row represents the value of one cell, give each cell a default configuration. (Default cell values are static members of TableCell.
-						string[] row = csv.Record;
-
-						for (int i = 0; i < row.Length; i++)
-						{
-							string item = row[i].PerLineTrim();
-							newCells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), new TextContent(item)));
-						}
-					}
-
-					Cells = new ObservableCollection<TableCell>(newCells);
+					string item = row[i].PerLineTrim();
+					newCells.Add(CreateNewCell(new Vector2I(i, csv.Row - 1), new TextContent(item)));
 				}
 			}
+
+			Cells = new ObservableCollection<TableCell>(newCells);
 		}
 
 		/// <summary>
@@ -244,7 +246,7 @@ namespace TableToImageExport
 			string[] properties = order.Split('.');
 			Type objectType = typeof(T);
 
-			List<TableCell> cells = new List<TableCell>();
+			List<TableCell> cells = new();
 
 			for (int r = 0; r < objects.Count; r++)
 			{
@@ -255,7 +257,7 @@ namespace TableToImageExport
 				{
 					string value = objectType.GetProperty(property).GetValue(item, null).ToString();
 
-					TableCell cell = new TableCell(this)
+					TableCell cell = new(this)
 					{
 						TablePosition = new Vector2I(column + startAt.X, r + startAt.Y),
 						Content = new TextContent(value)
@@ -290,7 +292,7 @@ namespace TableToImageExport
 
 		/// <summary>
 		/// Creates a new cell located within this table, with no parameters the cell is given default values as static members of <see cref="TableCell"/>.<br/><br/>
-		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
+		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TableCell})"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell with the given content which has a set of default configuration values.</returns>
 		public TableCell CreateNewCell(Vector2I position, ITableContent content = null) => new(this)
@@ -301,7 +303,7 @@ namespace TableToImageExport
 
 		/// <summary>
 		/// Creates a new cell located within this table, with no parameters the cell is given default values as static members of <see cref="TableCell"/>.<br/><br/>
-		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
+		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TableCell})"/> method to load a list of newly created cells.
 		/// 
 		/// This will set the content to the provided string.
 		/// </summary>
@@ -310,10 +312,10 @@ namespace TableToImageExport
 
 		/// <summary>
 		/// Creates a new cell located within this table.<br/><br/>
-		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(TableCell[])"/> method to load a list of newly created cells.
+		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TableCell})"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell located within the table.</returns>
-		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new TableCell(this, tablePosition, data, contentAlignment, cellSize, BG);
+		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new(this, tablePosition, data, contentAlignment, cellSize, BG);
 
 		/// <summary>
 		/// Gets a collection of cells apart of this table where the cells are on row <paramref name="rowNumber"/>.<br/>
@@ -334,7 +336,7 @@ namespace TableToImageExport
 		/// This is useful as if you want to set a universal property for every cell in a column (such as <see cref="TableCell.CellSize"/> width) you can set <see cref="TableColumn.Width"/> which will update each cell's width to be the value provided.
 		/// </summary>
 		/// <param name="columnNumber">The column to retrieve</param>
-		/// <returns>An iterable collection of cells where each cell is in the column according to <see cref="TableColumn.RowNumber"/></returns>
+		/// <returns>An iterable collection of cells where each cell is in the column according to <see cref="TableColumn.ColumnNumber"/></returns>
 		public TableColumn GetColumn(int columnNumber) => TableColumn.FromTable(this, columnNumber);
 
 		/// <summary>
@@ -345,7 +347,7 @@ namespace TableToImageExport
 		{
 			// This will fill in all spaces between column 0 to column at tableSize.X and row 0 to row at tableSize.Y.
 			Section tableSize = TableSize;
-			List<TableCell> addedCells = new List<TableCell>();
+			List<TableCell> addedCells = new();
 
 			for (int c = tableSize.Left; c <= tableSize.Right; c++)
 			{
@@ -365,7 +367,7 @@ namespace TableToImageExport
 					// Important to remember: indexing an ITableCollection will not throw an IndexOutOfRangeException, it will only return null if none was found.
 					if (cell == null)
 					{
-						TableCell fillerCell = new TableCell(this)
+						TableCell fillerCell = new(this)
 						{
 							TablePosition = new Vector2I(c, r),
 							CellSize = new Size(column.Width, GetRow(r).Height),
@@ -449,7 +451,7 @@ namespace TableToImageExport
 		}
 
 		/// <summary>
-		/// Produces an image of the table in full. Returns a <see cref="Bitmap"/> object which can then be used for any other purpose such as saving directly to a file or overlapping to an existing image.
+		/// Produces an image of the table in full. Returns a <see cref="Image"/> object which can then be used for any other purpose such as saving directly to a file or placing onto an existing image.
 		/// </summary>
 		/// <returns>A bitmap object which is the table visualized as an image.</returns>
 		public Image<Argb32> ExportTable()
@@ -480,8 +482,8 @@ namespace TableToImageExport
 					}
 
 					// Establish the basic information about the cell on the image used later to draw.
-					Point cellPixelCoordinates = new Point(accumulatedWidth + 1 - c, accumulatedHeight + 1 - addedRow++);
-					Rectangle cellBounds = new Rectangle(cellPixelCoordinates, cell.CellSize);
+					Point cellPixelCoordinates = new(accumulatedWidth + 1 - c, accumulatedHeight + 1 - addedRow++);
+					Rectangle cellBounds = new(cellPixelCoordinates, cell.CellSize);
 					
 					Bounds corners = new()
 					{
@@ -502,7 +504,7 @@ namespace TableToImageExport
 					// Positioning of content.
 					SizeF contentSize = cell.Content.GetContentSize(cell.CellSize);
 					Point relativeCellPosition = cell.ContentAlignment.Align(cell.CellSize, contentSize);
-					Point contentPosition = new Point()
+					Point contentPosition = new()
 					{
 						X = cellPixelCoordinates.X + relativeCellPosition.X,
 						Y = cellPixelCoordinates.Y + relativeCellPosition.Y
@@ -545,6 +547,8 @@ namespace TableToImageExport
 				// Indexing will directly replace a cell if there is already a cell at the position, otherwise, just insert it as normal.
 				int index = Cells.FindIndex(x => x.TablePosition == position);
 
+				value.TablePosition = position;
+
 				if (index == -1)
 				{
 					Cells.Add(value);
@@ -556,6 +560,14 @@ namespace TableToImageExport
 			}
 		}
 
+		/// <summary>
+		/// Returns the cell according to the <paramref name="row"/> and <paramref name="column"/>.<br/><br/>
+		/// 
+		/// When setting the value at the index, the cell at <paramref name="column"/> and <paramref name="row"/> will be replaced with the value given, otherwise, it is just inserted into the table. 
+		/// </summary>
+		/// <param name="column">The column number.</param>
+		/// <param name="row">The row number.</param>
+		/// <returns>The cell in column <paramref name="column"/> and row <paramref name="row"/>.</returns>
 		public TableCell this[int column, int row]
 		{
 			get => this[new Vector2I(column, row)];

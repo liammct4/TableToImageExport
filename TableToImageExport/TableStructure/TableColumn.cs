@@ -133,7 +133,7 @@ namespace TableToImageExport.TableStructure
 		/// <returns>A new column which contains all the cells on the column <see cref="ColumnNumber"/>.</returns>
 		public static TableColumn FromTable(TableGenerator parent, int columnNumber)
 		{
-			TableColumn column = new TableColumn(parent)
+			TableColumn column = new(parent)
 			{
 				ColumnNumber = columnNumber,
 			};
@@ -193,7 +193,7 @@ namespace TableToImageExport.TableStructure
 		}
 
 		/// <summary>
-		/// Disconnects the object from the table cell. Releases all cells in <see cref="Cells"/>.
+		/// Disconnects the object from the table. Releases all cells in <see cref="Cells"/>.
 		/// </summary>
 		public void Dispose()
 		{

@@ -18,7 +18,13 @@ namespace TableToImageExport.TableContent
 	/// </summary>
 	public class TextContent : ITableContent
 	{
+		/// <summary>
+		/// Default Property: Used on properties <see cref="Font"/> and <see cref="DateContent.Font"/> when no value is provided.
+		/// </summary>
 		public static Font DefaultFont = new(SystemFonts.Get("Times New Roman"), 15);
+		/// <summary>
+		/// Default Property: Used on properties <see cref="TextBG"/> and <see cref="DateContent.TextBG"/> when no value is provided.
+		/// </summary>
 		public static Color DefaultTextBG = new Argb32(0, 0, 0);
 		/// <summary>
 		/// The text which this object stores.

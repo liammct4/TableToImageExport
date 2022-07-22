@@ -134,7 +134,7 @@ namespace TableToImageExport.TableStructure
 		/// <returns>A new row which contains all the cells on the row <see cref="RowNumber"/>.</returns>
 		public static TableRow FromTable(TableGenerator parent, int rowNumber)
 		{
-			TableRow row = new TableRow(parent)
+			TableRow row = new(parent)
 			{
 				RowNumber = rowNumber,
 			};
@@ -194,7 +194,7 @@ namespace TableToImageExport.TableStructure
 		}
 
 		/// <summary>
-		/// Disconnects the object from the table cell. Releases all cells in <see cref="Cells"/>.
+		/// Disconnects the object from the table. Releases all cells in <see cref="Cells"/>.
 		/// </summary>
 		public void Dispose()
 		{

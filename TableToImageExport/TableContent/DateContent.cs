@@ -16,11 +16,15 @@ namespace TableToImageExport.TableContent
 	/// <summary>
 	/// Represents the content of one cell. This content type holds a <see cref="DateTime"/> object.
 	/// </summary>
-	public class DateContent : ITableContent
+	public class DateContent : ITableContent, ITextContent
 	{
-		public static Font DefaultFont => TextContent.DefaultFont;
-		public static Color DefaultTextBG => TextContent.DefaultTextBG;
+		/// <summary>
+		/// Default Property: Used on property <see cref="OutputFormat"/> when no value is provided.
+		/// </summary>
 		public static string DefaultDateFormat = "d";
+		/// <summary>
+		/// Default Property: Used on property <see cref="Culture"/> when no value is provided.
+		/// </summary>
 		public static CultureInfo DefaultCulture = CultureInfo.CurrentCulture;
 		/// <summary>
 		/// The time which this object stores, will be written in the standard time format according to the culture <see cref="Culture"/>.
@@ -37,11 +41,11 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// The font which will be used to write the date onto the table, this stores both the font family and the size.
 		/// </summary>
-		public Font Font { get; set; } = DefaultFont;
+		public Font Font { get; set; } = ITextContent.DefaultFont;
 		/// <summary>
 		/// The colour the font will be rendered in.
 		/// </summary>
-		public Color TextBG { get; set; } = DefaultTextBG;
+		public Color TextBG { get; set; } = ITextContent.DefaultTextBG;
 		/// <summary>
 		/// Creates a new content object with the specified date, equivelant to setting <see cref="Content"/>.
 		/// </summary>

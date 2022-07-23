@@ -33,7 +33,7 @@ namespace TableToImageExport
 		/// <summary>
 		/// Default Property: Used on property <see cref="CornerRadius"/> when no value is provided.
 		/// </summary>
-		public static uint DefaultCornerRadius = 5;
+		public static uint DefaultCornerRadius = 8;
 		/// <summary>
 		/// Default Property: Used on property <see cref="BorderColour"/> when no value is provided.
 		/// </summary>
@@ -429,7 +429,7 @@ namespace TableToImageExport
 				float maxHeight = 0;
 				row.Select(x => x.Content.GetContentSize(new Size(x.CellSize.Width, int.MaxValue)).Height).ForEach(x => maxHeight = x > maxHeight ? x : maxHeight);
 
-				row.Height = (int)maxHeight + overflow;
+				row.Height = (int)maxHeight + 2 + overflow;
 
 				// Remove each row used as they are now redundant.
 				row.Dispose();
@@ -531,7 +531,7 @@ namespace TableToImageExport
 					};
 
 					// Now just simply draw the content onto the image.
-					image.Mutate(g => cell.Content.WriteContent(g, new RectangleF(contentPosition, contentSize)));
+					image.Mutate(g => cell.Content.WriteContent(g, new RectangleF(contentPosition, cell.CellSize)));
 				}
 
 				accumulatedWidth += column.Width;

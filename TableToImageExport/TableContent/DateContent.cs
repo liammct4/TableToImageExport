@@ -69,12 +69,10 @@ namespace TableToImageExport.TableContent
 		{
 			TextOptions options = new(Font);
 
-			if (sizeOfCell is null)
+			if (sizeOfCell is not null)
 			{
-				return TextMeasurer.Measure(Content.ToString(OutputFormat, Culture), options).Size();
+				options.WrappingLength = sizeOfCell.Value.Width;
 			}
-
-			options.WrappingLength = sizeOfCell.Value.Width;
 
 			return TextMeasurer.Measure(Content.ToString(OutputFormat, Culture), options).Size();
 		}

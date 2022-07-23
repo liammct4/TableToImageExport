@@ -27,6 +27,10 @@ namespace TableToImageExport.TableContent
 		/// </summary>
 		public static Color DefaultTextBG = new Argb32(0, 0, 0);
 		/// <summary>
+		/// Determines the size of the space between the left or right edge when the text needs to wrap.
+		/// </summary>
+		internal const int EndMargin = 8;
+		/// <summary>
 		/// The text which this object stores.
 		/// </summary>
 		public string Content { get; set; }
@@ -50,7 +54,7 @@ namespace TableToImageExport.TableContent
 		{
 			TextOptions options = new(Font)
 			{
-				WrappingLength = layout.Width + layout.Left,
+				WrappingLength = layout.Width - EndMargin,
 				Origin = new PointF(layout.Left, layout.Top)
 			};
 
@@ -65,12 +69,10 @@ namespace TableToImageExport.TableContent
 		{
 			TextOptions options = new(Font);
 
-			if (sizeOfCell is null)
+			if (sizeOfCell is not null)
 			{
-				return TextMeasurer.Measure(Content, options).Size();
+				options.WrappingLength = sizeOfCell.Value.Width;
 			}
-
-			options.WrappingLength = sizeOfCell.Value.Width;
 
 			return TextMeasurer.Measure(Content, options).Size();
 		}

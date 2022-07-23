@@ -45,7 +45,7 @@ namespace TableToImageExport.TableContent
 		/// </summary>
 		public void WriteContent(IImageProcessingContext graphics, RectangleF position)
 		{
-			Image resizedClone = Content.Clone(i => i.Resize(imageSize));
+			Image resizedClone = Content.Clone(i => i.Resize(imageSize.Width, imageSize.Height));
 			graphics.DrawImage(resizedClone, new Point((int)position.X, (int)position.Y), 1);
 		}
 		/// <summary>

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TableToImageExport.TableContent;
+using TableToImageExport.TableContent.ContentStructure;
 
 namespace TableToImageExport.TableStructure
 {
@@ -69,6 +70,8 @@ namespace TableToImageExport.TableStructure
 		}
 		/// <summary>
 		/// Universal property for setting the font of each cell within this column.
+		/// 
+		/// Changes properties: All types of <see cref="ITextContent"/> with <see cref="ITextContent.Font"/>.
 		/// </summary>
 		public Font ColumnFont
 		{
@@ -76,7 +79,7 @@ namespace TableToImageExport.TableStructure
 			{
 				foreach (TableCell cell in Cells)
 				{
-					if (cell.Content is TextContent content)
+					if (cell.Content is ITextContent content)
 					{
 						content.Font = value;
 					}
@@ -86,7 +89,7 @@ namespace TableToImageExport.TableStructure
 		/// <summary>
 		/// Universal property for setting the text colour of each cell within this column.<br/><br/>
 		/// 
-		/// This will only be applied to cells with content of type <see cref="TextContent"/>.
+		/// Changes properties: All types of <see cref="ITextContent"/> with <see cref="ITextContent.TextBG"/>.
 		/// </summary>
 		public Color ColumnTextBG
 		{
@@ -94,7 +97,7 @@ namespace TableToImageExport.TableStructure
 			{
 				foreach (TableCell cell in Cells)
 				{
-					if (cell.Content is TextContent content)
+					if (cell.Content is ITextContent content)
 					{
 						content.TextBG = value;
 					}
@@ -102,7 +105,9 @@ namespace TableToImageExport.TableStructure
 			}
 		}
 		/// <summary>
-		/// Universal property for setting the background colour of each cell within this column.
+		/// Universal property for setting the background colour of each cell within this column.<br/><br/>
+		/// 
+		/// Changes property: <see cref="TableCell.BG"/>.
 		/// </summary>
 		public Color ColumnBG
 		{
@@ -111,6 +116,21 @@ namespace TableToImageExport.TableStructure
 				foreach (TableCell cell in Cells)
 				{
 					cell.BG = value;
+				}
+			}
+		}
+		/// <summary>
+		/// Universal property for setting the content alignment of each cell within this column.<br/><br/>
+		/// 
+		/// Changes property: <see cref="TableCell.ContentAlignment"/>.
+		/// </summary>
+		public ItemAlignment ColumnContentAlignment
+		{
+			set
+			{
+				foreach (TableCell cell in Cells)
+				{
+					cell.ContentAlignment = value;
 				}
 			}
 		}

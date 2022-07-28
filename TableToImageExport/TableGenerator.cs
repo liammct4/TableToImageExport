@@ -398,8 +398,14 @@ namespace TableToImageExport
 		/// Resizes each column to fit the content of each cell. Calling this method will ensure that all the content is not cut off/overlapping other cells.
 		/// </summary>
 		/// <param name="overflow">How many extra pixels each column should be extended by.</param>
-		public void ExpandColumnsToContent(uint overflow = 5)
+		/// <param name="minimumWidth">Ensures that each column is atleast a certain width when resized.</param>
+		public void ExpandColumnsToContent(int overflow = 5, int minimumWidth = 0)
 		{
+			if (overflow < 0 || minimumWidth < 0)
+			{
+				throw new FormatException($"An argument provided contained an argument which was negative. Only positive numbers are allowed. {(overflow < 0 ? $"{nameof(overflow)} was {overflow}" : $"{nameof(minimumWidth)} was {minimumWidth}.")}");
+			}
+
 			Section tableSize = TableSize;
 
 			for (int c = tableSize.Left; c <= tableSize.Right; c++)
@@ -407,6 +413,11 @@ namespace TableToImageExport
 				TableColumn column = GetColumn(c);
 				float maxWidth = 0;
 				column.Select(x => x.Content.GetContentSize().Width).ForEach(x => maxWidth = x > maxWidth ? x : maxWidth);
+
+				if (maxWidth < minimumWidth)
+				{
+					maxWidth = minimumWidth;
+				}
 
 				column.Width = (int)(maxWidth + overflow);
 
@@ -419,8 +430,14 @@ namespace TableToImageExport
 		/// Resizes each row to fit the content of each cell. Calling this method will ensure that all the content is not cut off/overlapping other cells.
 		/// </summary>
 		/// <param name="overflow">How many extra pixels each row should be extended by.</param>
-		public void ExpandRowsToContent(int overflow = 5)
+		/// <param name="minimumHeight">Ensures that each row is atleast a certain height when resized.</param>
+		public void ExpandRowsToContent(int overflow = 5, int minimumHeight = 0)
 		{
+			if (overflow < 0 || minimumHeight < 0)
+			{
+				throw new FormatException($"An argument provided contained an argument which was negative. Only positive numbers are allowed. {(overflow < 0 ? $"{nameof(overflow)} was {overflow}" : $"{nameof(minimumHeight)} was {minimumHeight}.")}");
+			}
+
 			Section tableSize = TableSize;
 
 			for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
@@ -428,6 +445,11 @@ namespace TableToImageExport
 				TableRow row = GetRow(r);
 				float maxHeight = 0;
 				row.Select(x => x.Content.GetContentSize(new Size(x.CellSize.Width, int.MaxValue)).Height).ForEach(x => maxHeight = x > maxHeight ? x : maxHeight);
+
+				if (maxHeight < minimumHeight)
+				{
+					maxHeight = minimumHeight;
+				}
 
 				row.Height = (int)maxHeight + 2 + overflow;
 

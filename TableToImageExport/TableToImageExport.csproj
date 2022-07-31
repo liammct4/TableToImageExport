@@ -5,18 +5,29 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>TableToImageExport</PackageId>
-    <Version>1.0.7</Version>
+    <Version>1.0.8</Version>
     <Authors>liammct4</Authors>
     <Company>Liam M</Company>
     <Product>TableToImageExport</Product>
-    <Description>A C# library for processing tabular CSV/TSV data into images.</Description>
+    <Description>A C# library for processing tabular CSV/TSV data into images.
+
+See repo: https://github.com/liammct4/TableToImageExport</Description>
     <Copyright>Copyright 2022</Copyright>
     <RepositoryUrl>https://github.com/liammct4/TableToImageExport</RepositoryUrl>
     <PackageTags>CSV,TSV,table,tables,images,imaging,tabular,generator</PackageTags>
-    <PackageReleaseNotes>Package Release (Added Documentation)</PackageReleaseNotes>
+    <PackageReleaseNotes>Added Cross Platform Support, fixed bugs and added minor features.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <PackageReadmeFile>readme (Nuget).md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/liammct4/TableToImageExport/</PackageProjectUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Desktop\Tables\Documentation\readme (Nuget).md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="28.0.1" />

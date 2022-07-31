@@ -1,5 +1,5 @@
 # TableToImageExport
-**A C# library for processing tabular CSV/TSV data into images.**
+**A C# library for processing tabular data into images.**
 
 ## Description
 This is a new cross-platform library capable of processing tabular data into images. This library provides full customizability options for tables and has support for CSV/TSV file formats.

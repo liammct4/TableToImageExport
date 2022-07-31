@@ -74,7 +74,7 @@ This library is not compatible with Visual Studio 2019 since this library is .NE
 7. Done!
 
 # Documentation/Guide:
-Coming soon!
+See the [wiki](https://github.com/liammct4/TableToImageExport/wiki).
 
 ## Acknowledgements/Dependencies
 Below is the list of all the other libraries needed for this library to work:

@@ -76,6 +76,11 @@ This library is not compatible with Visual Studio 2019 since this library is .NE
 # Documentation/Guide:
 See the [wiki](https://github.com/liammct4/TableToImageExport/wiki).
 
+# Planned Changes:
+- Support for HTML generation.
+- Cell spanning over columns and rows.
+- Sub cell support.
+
 ## Acknowledgements/Dependencies
 Below is the list of all the other libraries needed for this library to work:
 - [CSVHelper](https://joshclose.github.io/CsvHelper/)

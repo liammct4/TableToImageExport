@@ -496,7 +496,7 @@ namespace TableToImageExport
 		/// Produces an image of the table in full. Returns a <see cref="Image"/> object which can then be used for any other purpose such as saving directly to a file or placing onto an existing image.
 		/// </summary>
 		/// <returns>A bitmap object which is the table visualized as an image.</returns>
-		public Image<Argb32> ExportTable()
+		public Image<Argb32> ExportTableToImage()
 		{
 			// Precache the appropriate information about the table as these are very complicated. Use instead of directly accessing property.
 			Section tableSize = TableSize;
@@ -566,6 +566,16 @@ namespace TableToImageExport
 			rows.ForEach(r => r.Dispose());
 
 			return image;
+		}
+
+		/// <summary>
+		/// Produces a HTML snippet of a table along with the styling. The table will be named according to <paramref name="tableClassName"/>.
+		/// </summary>
+		/// <param name="tableClassName">The class name which the produced table will be named as.</param>
+		/// <returns>The raw html snippet.</returns>
+		public string ExportTableToHtml(string tableClassName)
+		{
+			throw new NotImplementedException();
 		}
 
 		/// <summary>

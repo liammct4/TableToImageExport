@@ -37,7 +37,7 @@ namespace TableToImageExport.TableStructure
 		/// </summary>
 		public TableGenerator Parent { get; internal set; }
 		/// <summary>
-		/// The content of this cell, when the table is rendered (using the <see cref="TableGenerator.ExportTable()"/>) the content will be rendered within the cell.<br/>
+		/// The content of this cell, when the table is rendered (using the <see cref="TableGenerator.ExportTableToHtml()"/>) the content will be rendered within the cell.<br/>
 		/// This is a generic interface as there are multiple content types (e.g. <see cref="TextContent"/>, <see cref="ImageContent"/>). To access specific settings such as text colour or image size, cast this to its class implementation.<br/><br/>
 		/// 
 		/// The main content types are:

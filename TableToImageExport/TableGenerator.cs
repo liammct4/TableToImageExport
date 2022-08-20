@@ -553,7 +553,7 @@ namespace TableToImageExport
 					};
 
 					// Now just simply draw the content onto the image.
-					image.Mutate(g => cell.Content.WriteContent(g, new RectangleF(contentPosition, cell.CellSize)));
+					image.Mutate(g => cell.Content.WriteContentToImage(g, new RectangleF(contentPosition, cell.CellSize)));
 				}
 
 				accumulatedWidth += column.Width;

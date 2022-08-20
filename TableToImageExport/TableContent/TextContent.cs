@@ -42,7 +42,7 @@ namespace TableToImageExport.TableContent
 		/// <summary>
 		/// Draws the text onto the table using the specified settings <see cref="Font"/> and <see cref="TextBG"/>.
 		/// </summary>
-		public void WriteContent(IImageProcessingContext graphics, RectangleF layout)
+		public void WriteContentToImage(IImageProcessingContext graphics, RectangleF layout)
 		{
 			TextOptions options = new(Font)
 			{
@@ -51,6 +51,16 @@ namespace TableToImageExport.TableContent
 			};
 
 			graphics.DrawText(options, Content, TextBG);
+		}
+		/// <summary>
+		/// Creates a html snippet representing this text data with the specified settings <see cref="Font"/> and <see cref="TextBG"/>.
+		/// </summary>
+		/// <param name="resourcePath">The folder location for resources.</param>
+		/// <returns>A html snippet string.</returns>
+		public string WriteContentToHtml(string resourcePath = null)
+		{
+			Argb32 colour = TextBG;
+			return $"<p style=\"font-family: {Font.Name}; font-size: {Font.Size}pt; color: rgb({colour.R}, {colour.G}, {colour.B});\">{Content}</p>";
 		}
 		/// <summary>
 		/// Returns the size of the text in pixels when drawn using the specfied <see cref="Font"/> of this object.

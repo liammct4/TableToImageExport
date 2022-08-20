@@ -20,7 +20,13 @@ namespace TableToImageExport.TableContent
 		/// </summary>
 		/// <param name="graphics">The image to draw on.</param>
 		/// <param name="position">The position and area of the content.</param>
-		void WriteContent(IImageProcessingContext graphics, RectangleF position);
+		void WriteContentToImage(IImageProcessingContext graphics, RectangleF position);
+		/// <summary>
+		/// Produces an HTML snippet of this content.
+		/// </summary>
+		/// <param name="resourcePath">The path location to the folder for resources (e.g. Image Files).</param>
+		/// <returns>A HTML snippet representing this content.</returns>
+		string WriteContentToHtml(string resourcePath);
 		/// <summary>
 		/// Gets the size of the content item in pixels.
 		/// </summary>

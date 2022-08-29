@@ -584,6 +584,13 @@ namespace TableToImageExport
 			string indentBase = new(Enumerable.Range(0, indentLevel).Select(x => '\t').ToArray());
 			Argb32 colour = BorderColour;
 
+			string cssTableIdentifier = $".{tableClassName}";
+
+			if (tableClassName == string.Empty)
+			{
+				cssTableIdentifier = "table";
+			}
+
 			string baseStyle =
 				$"{indentBase}<style>\n" +
 				$"{indentBase}\tth, td {{\n" +
@@ -591,10 +598,13 @@ namespace TableToImageExport
 				$"{indentBase}\t\tborder-color: rgb({colour.R}, {colour.G}, {colour.B});\n" +
 				$"{indentBase}\t\tborder-style: solid;\n" +
 				$"{indentBase}\t\tborder-collapse: collapse;\n" +
-				$"{indentBase}\t}}\n";
-
+				$"{indentBase}\t}}\n" +
+				$"{indentBase}\t{cssTableIdentifier} {{\n" +
+				$"{indentBase}\t\tborder-spacing: 0px;\n" +
+				$"}}\n";
+			
 			StringBuilder styleSb = new(baseStyle);
-			StringBuilder tableSb = new($"{indentBase}<table>\n");
+			StringBuilder tableSb = new($"{indentBase}<table class=\"{tableClassName}\">\n");
 
 			// Precache the table size since this is a time consuming operation.
 			Section size = TableSize;
@@ -609,12 +619,26 @@ namespace TableToImageExport
 				{
 					TableCell cell = row[c];
 
+					string borderStyling = "";
+					bool borderChanged = false;
+					if (cell.TablePosition.X != size.Left)
+					{
+						borderStyling += "border-left: 0;";
+						borderChanged = true;
+					}
+
+					if (cell.TablePosition.Y != size.Top)
+					{
+						borderStyling += "border-top: 0;";
+						borderChanged = true;
+					}
+
 					if (cell is null)
 					{
 						continue;
 					}
 
-					string htmlRow = $"<td>{cell.Content.WriteContentToHtml(resourcePath)}</td>";
+					string htmlRow = $"<td{(borderChanged ? $" style=\"{borderStyling}\"" : "")}>{cell.Content.WriteContentToHtml(resourcePath)}</td>";
 					tableSb.AppendLine($"{indentBase}\t\t{htmlRow}");
 				}
 

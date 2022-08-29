@@ -573,9 +573,46 @@ namespace TableToImageExport
 		/// </summary>
 		/// <param name="tableClassName">The class name which the produced table will be named as.</param>
 		/// <returns>The raw html snippet.</returns>
-		public string ExportTableToHtml(string tableClassName)
+		public string ExportTableToHtml(string tableClassName, int indentLevel)
 		{
-			throw new NotImplementedException();
+			// Creates a string which is indentLevel characters long of tab separators.
+			string indentBase = new(Enumerable.Range(0, indentLevel).Select(x => '\t').ToArray());
+			Argb32 colour = BorderColour;
+
+			string baseStyle =
+				$"{indentBase}<style>\n" +
+				$"{indentBase}\tth, td {{\n" +
+				$"{indentBase}\t\tborder-width: 1px;\n" +
+				$"{indentBase}\t\tborder-color: rgb({colour.R}, {colour.G}, {colour.B});\n" +
+				$"{indentBase}\t\tborder-style: solid;\n" +
+				$"{indentBase}\t\tborder-collapse: collapse;\n" +
+				$"{indentBase}\t}}\n";
+
+			StringBuilder styleSb = new(baseStyle);
+			StringBuilder tableSb = new();
+
+			// Precache the table size since this is a time consuming operation.
+			Section size = TableSize;
+
+			for (int r = size.Top; r < size.Bottom; r++)
+			{
+				TableRow row = GetRow(r);
+
+				tableSb.AppendLine($"{indentBase}\t<tr>");
+
+				for (int c = 0; c < row.CellCount; c++)
+				{
+					TableCell cell = row[c];
+
+					if (cell is null)
+					{
+						continue;
+					}
+
+				}
+			}
+
+			return styleSb.AppendLine("</style>").Append(tableSb).ToString();
 		}
 
 		/// <summary>

@@ -43,7 +43,7 @@ namespace TableToImageExport.TableContent
 				}
 			}
 		}
-		private static string _imageFormat;
+		private static string _imageFormat = "png";
 		/// <summary>
 		/// The image which this object stores.
 		/// </summary>
@@ -92,7 +92,7 @@ namespace TableToImageExport.TableContent
 
 			Content.Save(path);
 
-			return $"<img width={imageSize.Width} height={imageSize.Height} src={path}/>";
+			return $"<img width={imageSize.Width} height={imageSize.Height} src=\"{path}\"/>";
 		}
 		/// <summary>
 		/// Gets the size of the image in pixels.

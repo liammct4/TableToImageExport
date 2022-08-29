@@ -573,8 +573,13 @@ namespace TableToImageExport
 		/// </summary>
 		/// <param name="tableClassName">The class name which the produced table will be named as.</param>
 		/// <returns>The raw html snippet.</returns>
-		public string ExportTableToHtml(string tableClassName, int indentLevel)
+		public string ExportTableToHtml(string tableClassName, string resourcePath, int indentLevel)
 		{
+			if (!Directory.Exists(resourcePath))
+			{
+				throw new DirectoryNotFoundException($"The resource path ({resourcePath}) provided does not exist.");
+			}
+
 			// Creates a string which is indentLevel characters long of tab separators.
 			string indentBase = new(Enumerable.Range(0, indentLevel).Select(x => '\t').ToArray());
 			Argb32 colour = BorderColour;
@@ -589,7 +594,7 @@ namespace TableToImageExport
 				$"{indentBase}\t}}\n";
 
 			StringBuilder styleSb = new(baseStyle);
-			StringBuilder tableSb = new();
+			StringBuilder tableSb = new($"{indentBase}<table>\n");
 
 			// Precache the table size since this is a time consuming operation.
 			Section size = TableSize;
@@ -609,10 +614,18 @@ namespace TableToImageExport
 						continue;
 					}
 
+					string htmlRow = $"<td>{cell.Content.WriteContentToHtml(resourcePath)}</td>";
+					tableSb.AppendLine($"{indentBase}\t\t{htmlRow}");
 				}
+
+				tableSb.AppendLine($"{indentBase}\t</tr>");
 			}
 
-			return styleSb.AppendLine("</style>").Append(tableSb).ToString();
+			styleSb.AppendLine($"{indentBase}</style>");
+			tableSb.AppendLine($"{indentBase}</table>");
+			StringBuilder joinedHtml = styleSb.Append(tableSb);
+
+			return joinedHtml.ToString();
 		}
 
 		/// <summary>

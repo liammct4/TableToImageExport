@@ -607,9 +607,9 @@ namespace TableToImageExport
 			StringBuilder tableSb = new($"{indentBase}<table class=\"{tableClassName}\">\n");
 
 			// Precache the table size since this is a time consuming operation.
-			Section size = TableSize;
+			Section tableSize = TableSize;
 
-			for (int r = size.Top; r < size.Bottom; r++)
+			for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 			{
 				TableRow row = GetRow(r);
 
@@ -621,15 +621,31 @@ namespace TableToImageExport
 
 					string borderStyling = "";
 					bool borderChanged = false;
-					if (cell.TablePosition.X != size.Left)
+
+
+					if (cell.TablePosition.X != tableSize.Left)
 					{
-						borderStyling += "border-left: 0;";
+						borderStyling += "border-left: 0; ";
 						borderChanged = true;
 					}
 
-					if (cell.TablePosition.Y != size.Top)
+					if (cell.TablePosition.Y != tableSize.Top)
 					{
-						borderStyling += "border-top: 0;";
+						borderStyling += "border-top: 0; ";
+						borderChanged = true;
+					}
+
+					Bounds corners = new()
+					{
+						TopLeft = cell.TablePosition.X == tableSize.Left && cell.TablePosition.Y == tableSize.Top ? (int)CornerRadius : 0,
+						TopRight = cell.TablePosition.X == tableSize.Right && cell.TablePosition.Y == tableSize.Top ? (int)CornerRadius : 0,
+						BottomLeft = cell.TablePosition.X == tableSize.Left && cell.TablePosition.Y == tableSize.Bottom ? (int)CornerRadius : 0,
+						BottomRight = cell.TablePosition.X == tableSize.Right && cell.TablePosition.Y == tableSize.Bottom ? (int)CornerRadius : 0
+					};
+					
+					if (!corners.Equals(new Bounds(0)))
+					{
+						borderStyling += $"border-radius: {corners.TopLeft}px {corners.TopRight}px {corners.BottomRight}px {corners.BottomLeft}px; ";
 						borderChanged = true;
 					}
 
@@ -638,7 +654,7 @@ namespace TableToImageExport
 						continue;
 					}
 
-					string htmlRow = $"<td{(borderChanged ? $" style=\"{borderStyling}\"" : "")}>{cell.Content.WriteContentToHtml(resourcePath)}</td>";
+					string htmlRow = $"<td{(borderChanged ? $" style=\"{borderStyling.TrimEnd()}\"" : "")}>{cell.Content.WriteContentToHtml(resourcePath)}</td>";
 					tableSb.AppendLine($"{indentBase}\t\t{htmlRow}");
 				}
 

@@ -598,6 +598,7 @@ namespace TableToImageExport
 				$"{indentBase}\t\tborder-color: rgb({colour.R}, {colour.G}, {colour.B});\n" +
 				$"{indentBase}\t\tborder-style: solid;\n" +
 				$"{indentBase}\t\tborder-collapse: collapse;\n" +
+				$"{indentBase}\t\tpadding: 0;\n" + 
 				$"{indentBase}\t}}\n" +
 				$"{indentBase}\t{cssTableIdentifier} {{\n" +
 				$"{indentBase}\t\tborder-spacing: 0px;\n" +
@@ -619,20 +620,16 @@ namespace TableToImageExport
 				{
 					TableCell cell = row[c];
 
-					string borderStyling = "";
-					bool borderChanged = false;
-
+					string cellStyling = $"width: {cell.CellSize.Width}px; height: {cell.CellSize.Height}px; ";
 
 					if (cell.TablePosition.X != tableSize.Left)
 					{
-						borderStyling += "border-left: 0; ";
-						borderChanged = true;
+						cellStyling += "border-left: 0; ";
 					}
 
 					if (cell.TablePosition.Y != tableSize.Top)
 					{
-						borderStyling += "border-top: 0; ";
-						borderChanged = true;
+						cellStyling += "border-top: 0; ";
 					}
 
 					Bounds corners = new()
@@ -645,8 +642,7 @@ namespace TableToImageExport
 					
 					if (!corners.Equals(new Bounds(0)))
 					{
-						borderStyling += $"border-radius: {corners.TopLeft}px {corners.TopRight}px {corners.BottomRight}px {corners.BottomLeft}px; ";
-						borderChanged = true;
+						cellStyling += $"border-radius: {corners.TopLeft}px {corners.TopRight}px {corners.BottomRight}px {corners.BottomLeft}px; ";
 					}
 
 					if (cell is null)
@@ -654,7 +650,7 @@ namespace TableToImageExport
 						continue;
 					}
 
-					string htmlRow = $"<td{(borderChanged ? $" style=\"{borderStyling.TrimEnd()}\"" : "")}>{cell.Content.WriteContentToHtml(resourcePath)}</td>";
+					string htmlRow = $"<td style=\"{cellStyling.TrimEnd()}\">{cell.Content.WriteContentToHtml(resourcePath)}</td>";
 					tableSb.AppendLine($"{indentBase}\t\t{htmlRow}");
 				}
 

@@ -73,7 +73,7 @@ namespace TableToImageExport.TableContent
 		public string WriteContentToHtml(string resourcePath = null)
 		{
 			Argb32 colour = TextBG;
-			return $"<p style=\"font-family: {Font.Name}; font-size: {Font.Size}pt; color: rgb({colour.R}, {colour.G}, {colour.B});\">{Content.ToString(OutputFormat, Culture)}</p>";
+			return $"<p style=\"font-family: {Font.Name}; font-size: {Font.Size}px; color: rgb({colour.R}, {colour.G}, {colour.B});\">{Content.ToString(OutputFormat, Culture)}</p>";
 		}
 		/// <summary>
 		/// Returns the size of the text in pixels when drawn using the specfied <see cref="Font"/> of this object.

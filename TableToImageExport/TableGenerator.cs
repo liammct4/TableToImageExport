@@ -621,7 +621,7 @@ namespace TableToImageExport
 					TableCell cell = row[c];
 					Argb32 colour = cell.BG;
 
-					string cellStyling = $"width: {cell.CellSize.Width}px; height: {cell.CellSize.Height}px; background-color: rgb({colour.R}, {colour.G}, {colour.B}); ";
+					string cellStyling = $"{cell.ContentAlignment.ToString(FormatType.CSS)} width: {cell.CellSize.Width}px; height: {cell.CellSize.Height}px; background-color: rgb({colour.R}, {colour.G}, {colour.B}); ";
 
 					if (cell.TablePosition.X != tableSize.Left)
 					{

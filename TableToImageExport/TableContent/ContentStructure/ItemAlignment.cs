@@ -13,6 +13,18 @@ namespace TableToImageExport.TableContent.ContentStructure
 	/// </summary>
 	public struct ItemAlignment
 	{
+		private static Dictionary<HorizontalAlign, string> CSSHorizontalPairs = new()
+		{
+			[HorizontalAlign.Left] = "left",
+			[HorizontalAlign.Centre] = "center",
+			[HorizontalAlign.Right] = "right"
+		};
+		private static Dictionary<VerticalAlign, string> CSSVerticalPairs = new()
+		{
+			[VerticalAlign.Top] = "top",
+			[VerticalAlign.Centre] = "middle",
+			[VerticalAlign.Bottom] = "bottom"
+		};
 		/// <summary>
 		/// Gets a new alignment in the top left corner.
 		/// </summary>
@@ -65,7 +77,7 @@ namespace TableToImageExport.TableContent.ContentStructure
 		/// This does not affect the object when it is centred.
 		/// </summary>
 		public Vector2I Margin;
-		
+
 		public ItemAlignment(HorizontalAlign horizontal, VerticalAlign vertical, Vector2I? margin = null)
 		{
 			Horizontal = horizontal;
@@ -99,6 +111,15 @@ namespace TableToImageExport.TableContent.ContentStructure
 			VerticalAlign.Centre => (containerHeight / 2) - (objectHeight / 2),
 			VerticalAlign.Bottom => containerHeight - (objectHeight + Margin.Y),
 			_ => 0,
+		};
+
+		/// <summary>
+		/// Converts this item alignment to a readable format according to the format specified.
+		/// </summary>
+		/// <param name="type">The format type.</param>
+		public string ToString(FormatType type = FormatType.CSS) => type switch
+		{
+			FormatType.CSS => $"text-align: {CSSHorizontalPairs[Horizontal]}; vertical-align: {CSSVerticalPairs[Vertical]};"
 		};
 	}
 }

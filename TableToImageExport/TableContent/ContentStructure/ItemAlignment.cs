@@ -119,7 +119,7 @@ namespace TableToImageExport.TableContent.ContentStructure
 		/// <param name="type">The format type.</param>
 		public string ToString(FormatType type = FormatType.CSS) => type switch
 		{
-			FormatType.CSS => $"text-align: {CSSHorizontalPairs[Horizontal]}; vertical-align: {CSSVerticalPairs[Vertical]};"
+			FormatType.CSS => $"text-align: {CSSHorizontalPairs[Horizontal]}; vertical-align: {CSSVerticalPairs[Vertical]}; padding: {Margin.X} {Margin.Y};"
 		};
 	}
 }

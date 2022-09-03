@@ -582,7 +582,7 @@ namespace TableToImageExport
 
 			// Creates a string which is indentLevel characters long of tab separators.
 			string indentBase = new(Enumerable.Range(0, indentLevel).Select(x => '\t').ToArray());
-			Argb32 colour = BorderColour;
+			Argb32 borderColour = BorderColour;
 
 			string cssTableIdentifier = $".{tableClassName}";
 
@@ -595,7 +595,7 @@ namespace TableToImageExport
 				$"{indentBase}<style>\n" +
 				$"{indentBase}\tth, td {{\n" +
 				$"{indentBase}\t\tborder-width: 1px;\n" +
-				$"{indentBase}\t\tborder-color: rgb({colour.R}, {colour.G}, {colour.B});\n" +
+				$"{indentBase}\t\tborder-color: rgb({borderColour.R}, {borderColour.G}, {borderColour.B});\n" +
 				$"{indentBase}\t\tborder-style: solid;\n" +
 				$"{indentBase}\t\tborder-collapse: collapse;\n" +
 				$"{indentBase}\t\tpadding: 0;\n" + 
@@ -619,8 +619,9 @@ namespace TableToImageExport
 				for (int c = 0; c < row.CellCount; c++)
 				{
 					TableCell cell = row[c];
+					Argb32 colour = cell.BG;
 
-					string cellStyling = $"width: {cell.CellSize.Width}px; height: {cell.CellSize.Height}px; ";
+					string cellStyling = $"width: {cell.CellSize.Width}px; height: {cell.CellSize.Height}px; background-color: rgb({colour.R}, {colour.G}, {colour.B}); ";
 
 					if (cell.TablePosition.X != tableSize.Left)
 					{

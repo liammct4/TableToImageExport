@@ -572,6 +572,8 @@ namespace TableToImageExport
 		/// Produces a HTML snippet of a table along with the styling. The table will be named according to <paramref name="tableClassName"/>.
 		/// </summary>
 		/// <param name="tableClassName">The class name which the produced table will be named as.</param>
+		/// <param name="resourcePath">The folder location where resources (such as images) will be stored.</param>
+		/// <param name="indentLevel">The indent level which the table will start at.</param>
 		/// <returns>The raw html snippet.</returns>
 		public string ExportTableToHtml(string tableClassName, string resourcePath, int indentLevel = 0)
 		{
@@ -586,6 +588,7 @@ namespace TableToImageExport
 
 			string cssTableIdentifier = $".{tableClassName}";
 
+			// Incase there is no name provided, the styling will just target a generic table.
 			if (tableClassName == string.Empty)
 			{
 				cssTableIdentifier = "table";
@@ -621,10 +624,17 @@ namespace TableToImageExport
 				for (int c = 0; c < row.CellCount; c++)
 				{
 					TableCell cell = row[c];
+					if (cell is null)
+					{
+						continue;
+					}
+
 					Argb32 colour = cell.BG;
 
 					string cellStyling = $"{cell.ContentAlignment.ToString(FormatType.CSS)} width: {cell.CellSize.Width - (cell.ContentAlignment.Margin.X * 2)}px; height: {cell.CellSize.Height - (cell.ContentAlignment.Margin.Y * 2)}px; background-color: rgb({colour.R}, {colour.G}, {colour.B}); ";
 
+					// Borders between cells do NOT collpase in of themselves, so two side's (top, left) of every cell has to be 0 width.
+					// Incase the cell is the most far left or most top, the border is readded.
 					if (cell.TablePosition.X == tableSize.Left)
 					{
 						cellStyling += "border-left-width: 1px; ";
@@ -643,18 +653,14 @@ namespace TableToImageExport
 						BottomRight = cell.TablePosition.X == tableSize.Right && cell.TablePosition.Y == tableSize.Bottom ? (int)CornerRadius : 0
 					};
 					
+					// If the cell has corners, if not, there is no need to specify them.
 					if (!corners.Equals(new Bounds(0)))
 					{
 						cellStyling += $"border-radius: {corners.TopLeft}px {corners.TopRight}px {corners.BottomRight}px {corners.BottomLeft}px; ";
 					}
 
-					if (cell is null)
-					{
-						continue;
-					}
-
-					string htmlRow = $"<td style=\"{cellStyling.TrimEnd()}\">\n{indentBase}\t\t\t{cell.Content.WriteContentToHtml(resourcePath)}\n{indentBase}\t\t</td>";
-					tableSb.AppendLine($"{indentBase}\t\t{htmlRow}");
+					string htmlCell = $"<td style=\"{cellStyling.TrimEnd()}\">\n{indentBase}\t\t\t{cell.Content.WriteContentToHtml(resourcePath)}\n{indentBase}\t\t</td>";
+					tableSb.AppendLine($"{indentBase}\t\t{htmlCell}");
 				}
 
 				tableSb.AppendLine($"{indentBase}\t</tr>");

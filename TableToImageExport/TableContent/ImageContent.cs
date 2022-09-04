@@ -45,6 +45,12 @@ namespace TableToImageExport.TableContent
 		}
 		private static string _imageFormat = "png";
 		/// <summary>
+		/// A short text description of this image which will be added in markup when exported. Only affects HTML exporting.
+		/// 
+		/// Set to <see langword="null"/> for no alternative text to be added.
+		/// </summary>
+		public string AltText { get; set; }
+		/// <summary>
 		/// The image which this object stores.
 		/// </summary>
 		public Image Content
@@ -56,8 +62,8 @@ namespace TableToImageExport.TableContent
 				imageSize = new Size(value.Width, value.Height);
 			}
 		}
-		private Size imageSize;
 		private Image _content;
+		private Size imageSize;
 		/// <summary>
 		/// Loads an image. Equivelant to setting <see cref="Content"/>.
 		/// </summary>
@@ -92,7 +98,7 @@ namespace TableToImageExport.TableContent
 
 			Content.Save(path);
 
-			return $"<img width={imageSize.Width} height={imageSize.Height} src=\"{path}\"/>";
+			return $"<img width=\"{imageSize.Width}\" height=\"{imageSize.Height}\" src=\"{path}\"{(AltText is null ? "" : $" alt=\"{AltText}\"")}/>";
 		}
 		/// <summary>
 		/// Gets the size of the image in pixels.

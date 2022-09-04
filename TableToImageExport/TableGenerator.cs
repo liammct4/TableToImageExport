@@ -595,6 +595,8 @@ namespace TableToImageExport
 				$"{indentBase}<style>\n" +
 				$"{indentBase}\tth, td {{\n" +
 				$"{indentBase}\t\tborder-width: 1px;\n" +
+				$"{indentBase}\t\tborder-left: 0px;\n" +
+				$"{indentBase}\t\tborder-top: 0px;\n" +
 				$"{indentBase}\t\tborder-color: rgb({borderColour.R}, {borderColour.G}, {borderColour.B});\n" +
 				$"{indentBase}\t\tborder-style: solid;\n" +
 				$"{indentBase}\t\tborder-collapse: collapse;\n" +
@@ -602,7 +604,7 @@ namespace TableToImageExport
 				$"{indentBase}\t}}\n" +
 				$"{indentBase}\t{cssTableIdentifier} {{\n" +
 				$"{indentBase}\t\tborder-spacing: 0px;\n" +
-				$"}}\n";
+				$"{indentBase}\t}}\n";
 			
 			StringBuilder styleSb = new(baseStyle);
 			StringBuilder tableSb = new($"{indentBase}<table class=\"{tableClassName}\">\n");
@@ -623,14 +625,14 @@ namespace TableToImageExport
 
 					string cellStyling = $"{cell.ContentAlignment.ToString(FormatType.CSS)} width: {cell.CellSize.Width - (cell.ContentAlignment.Margin.X * 2)}px; height: {cell.CellSize.Height - (cell.ContentAlignment.Margin.Y * 2)}px; background-color: rgb({colour.R}, {colour.G}, {colour.B}); ";
 
-					if (cell.TablePosition.X != tableSize.Left)
+					if (cell.TablePosition.X == tableSize.Left)
 					{
-						cellStyling += "border-left: 0; ";
+						cellStyling += "border-left-width: 1px; ";
 					}
 
-					if (cell.TablePosition.Y != tableSize.Top)
+					if (cell.TablePosition.Y == tableSize.Top)
 					{
-						cellStyling += "border-top: 0; ";
+						cellStyling += "border-top-width: 1px; ";
 					}
 
 					Bounds corners = new()
@@ -651,7 +653,7 @@ namespace TableToImageExport
 						continue;
 					}
 
-					string htmlRow = $"<td style=\"{cellStyling.TrimEnd()}\">{cell.Content.WriteContentToHtml(resourcePath)}</td>";
+					string htmlRow = $"<td style=\"{cellStyling.TrimEnd()}\">\n{indentBase}\t\t\t{cell.Content.WriteContentToHtml(resourcePath)}\n{indentBase}\t\t</td>";
 					tableSb.AppendLine($"{indentBase}\t\t{htmlRow}");
 				}
 

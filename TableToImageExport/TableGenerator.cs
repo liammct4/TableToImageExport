@@ -573,7 +573,7 @@ namespace TableToImageExport
 		/// </summary>
 		/// <param name="tableClassName">The class name which the produced table will be named as.</param>
 		/// <returns>The raw html snippet.</returns>
-		public string ExportTableToHtml(string tableClassName, string resourcePath, int indentLevel)
+		public string ExportTableToHtml(string tableClassName, string resourcePath, int indentLevel = 0)
 		{
 			if (!Directory.Exists(resourcePath))
 			{

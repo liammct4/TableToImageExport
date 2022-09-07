@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>TableToImageExport</PackageId>
-    <Version>1.0.8</Version>
+    <Version>1.1.8</Version>
     <Authors>liammct4</Authors>
     <Company>Liam M</Company>
     <Product>TableToImageExport</Product>
@@ -15,11 +15,11 @@ See repo: https://github.com/liammct4/TableToImageExport</Description>
     <Copyright>Copyright 2022</Copyright>
     <RepositoryUrl>https://github.com/liammct4/TableToImageExport</RepositoryUrl>
     <PackageTags>CSV,TSV,table,tables,images,imaging,tabular,generator</PackageTags>
-    <PackageReleaseNotes>Added Cross Platform Support, fixed bugs and added minor features.</PackageReleaseNotes>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>Added HTML generation.</PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <PackageReadmeFile>readme (Nuget).md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/liammct4/TableToImageExport/</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

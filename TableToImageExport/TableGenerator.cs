@@ -261,12 +261,14 @@ namespace TableToImageExport
 
 				foreach (string property in properties)
 				{
-					string value = objectType.GetProperty(property).GetValue(item, null).ToString();
+					object propertyObject = objectType.GetProperty(property).GetValue(item, null);
+
+					ITableContent cellContent = TableContent.Utilities.GetContentFromObject(propertyObject);
 
 					TableCell cell = new(this)
 					{
 						TablePosition = new Vector2I(column + startAt.X, r + startAt.Y),
-						Content = new TextContent(value)
+						Content = cellContent
 					};
 
 					cells.Add(cell);

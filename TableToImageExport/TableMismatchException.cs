@@ -21,12 +21,12 @@ namespace TableToImageExport
 		/// <summary>
 		/// The table which had an attempt to add a cell to which belongs to another table.
 		/// </summary>
-		public TableGenerator AttemptedTable { get; internal set; }
+		public Table AttemptedTable { get; internal set; }
 
 		public TableMismatchException(string message = DEFAULT_MESSAGE) : base(message) { }
 		public TableMismatchException(string message, Exception inner) : base(message, inner) { }
 
-		public TableMismatchException(TableCell mismatchedCell, TableGenerator attemptedTable, string message = DEFAULT_MESSAGE) : base(message)
+		public TableMismatchException(TableCell mismatchedCell, Table attemptedTable, string message = DEFAULT_MESSAGE) : base(message)
 		{
 			MismatchedCell = mismatchedCell;
 			AttemptedTable = attemptedTable;

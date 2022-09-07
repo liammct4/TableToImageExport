@@ -18,7 +18,7 @@ namespace TableToImageExport
 	/// </summary>
 	public class TableStructureChangedEventArgs : EventArgs
 	{
-		public TableGenerator TableChanged { get; private set; }
+		public Table TableChanged { get; private set; }
 		/// <summary>
 		/// The old position of the cell which had its position changed.
 		/// </summary>
@@ -27,7 +27,7 @@ namespace TableToImageExport
 		/// The new position of the cell which has had its position changed.
 		/// </summary>
 		public Vector2I NewPosition { get; private set; }
-		public TableStructureChangedEventArgs(TableGenerator table, Vector2I oldPos, Vector2I newPos)
+		public TableStructureChangedEventArgs(Table table, Vector2I oldPos, Vector2I newPos)
 		{
 			TableChanged = table;
 			OldPosition = oldPos;

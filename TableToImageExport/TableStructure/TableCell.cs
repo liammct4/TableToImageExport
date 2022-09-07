@@ -35,7 +35,7 @@ namespace TableToImageExport.TableStructure
 		/// <summary>
 		/// The table which this cell belongs to.
 		/// </summary>
-		public TableGenerator Parent { get; internal set; }
+		public Table Parent { get; internal set; }
 		/// <summary>
 		/// The content of this cell, when the table is rendered (using the <see cref="TableGenerator.ExportTableToHtml()"/>) the content will be rendered within the cell.<br/>
 		/// This is a generic interface as there are multiple content types (e.g. <see cref="TextContent"/>, <see cref="ImageContent"/>). To access specific settings such as text colour or image size, cast this to its class implementation.<br/><br/>
@@ -81,14 +81,14 @@ namespace TableToImageExport.TableStructure
 		private Vector2I _tablePosition;
 		public event TableStructureChangedEventHandler CellPositionChanged;
 
-		internal TableCell(TableGenerator parent)
+		internal TableCell(Table parent)
 		{
 			ResetSettings(resetSize: true);
 			Parent = parent;
 			CellPositionChanged += parent.TableStructureChanged_Event;
 		}
 
-		internal TableCell(TableGenerator parent, Vector2I tablePosition, ITableContent data, ItemAlignment? contentAlignment = null, Size? cellSize = null, Color? BG = null)
+		internal TableCell(Table parent, Vector2I tablePosition, ITableContent data, ItemAlignment? contentAlignment = null, Size? cellSize = null, Color? BG = null)
 		{
 			Parent = parent;
 			TablePosition = tablePosition;

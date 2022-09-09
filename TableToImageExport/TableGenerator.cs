@@ -28,7 +28,7 @@ namespace TableToImageExport
 	/// <summary>
 	/// Class for manipulating tablular data and producing images. Can also process CSV and TSV data.
 	/// </summary>
-	public class TableGenerator : Table
+	public class TableGenerator : Table<TableCell>
 	{
 		/// <summary>
 		/// Default Property: Used on property <see cref="CornerRadius"/> when no value is provided.
@@ -38,6 +38,51 @@ namespace TableToImageExport
 		/// When exporting the table, this will determine how rounded the corners will be, set to 0 to get a square table/grid and to any positive 
 		/// </summary>
 		public uint CornerRadius { get; set; } = DefaultCornerRadius;
+		/// <summary>
+		/// Gets the width and length of the table in pixels in terms of <see cref="TableCell.CellSize"/>.
+		/// <br/>
+		/// <br/>
+		/// The total width is determined by the widest cell in each column.<br/>
+		/// The total height is determined by the tallest cell in each row.
+		/// </summary>
+		public SizeF TableDimensions
+		{
+			get
+			{
+				Section tableSize = TableSize;
+				SizeF dimensions = SizeF.Empty;
+
+				for (int c = tableSize.Left; c <= tableSize.Right; c++)
+				{
+					int widestCellWidth = 0;
+
+					foreach (TableCell cell in Cells)
+					{
+						if (cell.TablePosition.X == c && cell.CellSize.Width > widestCellWidth)
+						{
+							widestCellWidth = cell.CellSize.Width;
+						}
+					}
+					dimensions.Width += widestCellWidth - 1;
+				}
+
+				for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
+				{
+					int tallestCellHeight = 0;
+
+					foreach (TableCell cell in Cells)
+					{
+						if (cell.TablePosition.Y == r && cell.CellSize.Height > tallestCellHeight)
+						{
+							tallestCellHeight = cell.CellSize.Height;
+						}
+					}
+					dimensions.Height += tallestCellHeight - 1;
+				}
+
+				return dimensions;
+			}
+		}
 		/// <summary>
 		/// Creates a new empty table. Use the load methods or manually add data to populate this table.
 		/// </summary>
@@ -116,13 +161,16 @@ namespace TableToImageExport
 					// Important to remember: indexing an ITableCollection will not throw an IndexOutOfRangeException, it will only return null if none was found.
 					if (cell == null)
 					{
-						TableCell fillerCell = new(this)
+						TableCell fillerCell = new()
 						{
 							TablePosition = new Vector2I(c, r),
 							CellSize = new Size(column.Width, GetRow(r).Height),
 							BG = Color.Transparent,
 							Content = null
 						};
+
+						fillerCell.Initialize(this);
+
 						Cells.Add(fillerCell);
 						addedCells.Add(fillerCell);
 					}

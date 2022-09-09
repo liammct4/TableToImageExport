@@ -12,7 +12,7 @@ namespace TableToImageExport
 	/// <summary>
 	/// Invoked when the structure of a table has been changed, applies when cells are added, removed or when their position has changed.
 	/// </summary>
-	public delegate void TableStructureChangedEventHandler(TableCell cell, TableStructureChangedEventArgs e);
+	public delegate void TableStructureChangedEventHandler(Cell cell, TableStructureChangedEventArgs e);
 	/// <summary>
 	/// Details about table changes, includes the table changed and the change made (if applicable).
 	/// </summary>

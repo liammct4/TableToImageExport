@@ -17,9 +17,36 @@ using TableToImageExport.Utilities;
 namespace TableToImageExport.TableStructure
 {
 	/// <summary>
-	/// Base class which defines a table including layout/structure.
+	/// Base class for a table which is completely agnostic regarding cells and cell types.
 	/// </summary>
 	public abstract class Table
+	{
+		/// <summary>
+		/// When the table structure has changed, this event will be invoked which will update all <see cref="ITableCollection"/> objects.
+		/// </summary>
+		public event Action TableCollectionInvalidated;
+		/// <summary>
+		/// Updates each <see cref="TableRow"/> and <see cref="TableColumn"/> by their .Refresh() methods (provided in <see cref="ITableCollection.Refresh()"/>)
+		/// </summary>
+		/// <param name="cellChanged"></param>
+		/// <param name="e"></param>
+		protected internal void TableStructureChanged_Event(Cell cellChanged, TableStructureChangedEventArgs e)
+		{
+			TableCollectionInvalidated?.Invoke();
+		}
+		/// <summary>
+		/// Because events cannot be invoked from their own class (even when inherited)
+		/// </summary>
+		protected internal void InvokeTableCollectionInvalidate()
+		{
+			TableCollectionInvalidated?.Invoke();
+		}
+	}
+
+	/// <summary>
+	/// Base class which defines a table including layout/structure.
+	/// </summary>
+	public abstract class Table<TCell> : Table where TCell : Cell, new()
 	{
 		/// <summary>
 		/// Default Property: Used on property <see cref="BorderColour"/> when no value is provided.
@@ -33,7 +60,7 @@ namespace TableToImageExport.TableStructure
 		/// 
 		/// The exception <see cref="TableMismatchException"/> is thrown where any value in the provided list contains a cell which belongs to a different table.
 		/// </summary>
-		public ObservableCollection<TableCell> Cells
+		public ObservableCollection<TCell> Cells
 		{
 			get => _cells;
 			set
@@ -44,17 +71,18 @@ namespace TableToImageExport.TableStructure
 				}
 
 				// Check that the cell belongs to this table.
-				foreach (TableCell cell in value)
+				foreach (TCell cell in value)
 				{
 					if (!cell.Parent.Equals(this))
 					{
-						throw new TableMismatchException(cell, this);
+						throw new TableMismatchException<TCell>(cell, this);
 					}
 				}
 
 				_cells = value;
 				_cells.CollectionChanged += Cells_CollectionChanged;
-				TableCollectionInvalidated?.Invoke();
+
+				InvokeTableCollectionInvalidate();
 			}
 		}
 		/// <summary>
@@ -67,7 +95,7 @@ namespace TableToImageExport.TableStructure
 				Vector2I min = new(int.MaxValue, int.MaxValue);
 				Vector2I max = new(0, 0);
 
-				foreach (TableCell cell in Cells)
+				foreach (TCell cell in Cells)
 				{
 					min.X = cell.TablePosition.X < min.X ? cell.TablePosition.X : min.X;
 					min.Y = cell.TablePosition.Y < min.Y ? cell.TablePosition.Y : min.Y;
@@ -85,52 +113,6 @@ namespace TableToImageExport.TableStructure
 				};
 			}
 		}
-
-		/// <summary>
-		/// Gets the width and length of the table in pixels in terms of <see cref="TableCell.CellSize"/>.
-		/// <br/>
-		/// <br/>
-		/// The total width is determined by the widest cell in each column.<br/>
-		/// The total height is determined by the tallest cell in each row.
-		/// </summary>
-		public SizeF TableDimensions
-		{
-			get
-			{
-				Section tableSize = TableSize;
-				SizeF dimensions = SizeF.Empty;
-
-				for (int c = tableSize.Left; c <= tableSize.Right; c++)
-				{
-					int widestCellWidth = 0;
-
-					foreach (TableCell cell in Cells)
-					{
-						if (cell.TablePosition.X == c && cell.CellSize.Width > widestCellWidth)
-						{
-							widestCellWidth = cell.CellSize.Width;
-						}
-					}
-					dimensions.Width += widestCellWidth - 1;
-				}
-
-				for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
-				{
-					int tallestCellHeight = 0;
-
-					foreach (TableCell cell in Cells)
-					{
-						if (cell.TablePosition.Y == r && cell.CellSize.Height > tallestCellHeight)
-						{
-							tallestCellHeight = cell.CellSize.Height;
-						}
-					}
-					dimensions.Height += tallestCellHeight - 1;
-				}
-
-				return dimensions;
-			}
-		}
 		/// <summary>
 		/// When exporting the table, this will determine the colour of the borders of each cell.
 		/// </summary>
@@ -143,7 +125,7 @@ namespace TableToImageExport.TableStructure
 		/// <param name="column">The column number.</param>
 		/// <param name="row">The row number.</param>
 		/// <returns>The cell in column <paramref name="column"/> and row <paramref name="row"/>.</returns>
-		public TableCell this[int column, int row]
+		public TCell this[int column, int row]
 		{
 			get => this[new Vector2I(column, row)];
 			set => this[new Vector2I(column, row)] = value;
@@ -155,7 +137,7 @@ namespace TableToImageExport.TableStructure
 		/// </summary>
 		/// <param name="position">The position of the desired cell.</param>
 		/// <returns>A cell at position <paramref name="position"/>.</returns>
-		public TableCell this[Vector2I position]
+		public TCell this[Vector2I position]
 		{
 			get
 			{
@@ -187,12 +169,8 @@ namespace TableToImageExport.TableStructure
 				}
 			}
 		}
-		private ObservableCollection<TableCell> _cells;
+		private ObservableCollection<TCell> _cells;
 		internal bool suppressRefresh;
-		/// <summary>
-		/// When the table structure has changed, this event will be invoked which will update all <see cref="ITableCollection"/> objects.
-		/// </summary>
-		public event Action TableCollectionInvalidated;
 		/// <summary>
 		/// Loads data from a CSV/TSV file.
 		/// </summary>
@@ -226,7 +204,7 @@ namespace TableToImageExport.TableStructure
 
 			using CsvParser csv = new(reader, parserConfiguration);
 			// TODO: Allow data loaded to be added onto existing data.
-			List<TableCell> newCells = new();
+			List<TCell> newCells = new();
 			while (csv.Read())
 			{
 				// Each string in a row represents the value of one cell, give each cell a default configuration. (Default cell values are static members of TableCell.
@@ -239,16 +217,16 @@ namespace TableToImageExport.TableStructure
 				}
 			}
 
-			Cells = new ObservableCollection<TableCell>(newCells);
+			Cells = new ObservableCollection<TCell>(newCells);
 		}
 
 		/// <summary>
 		/// Loads a list of created cells. This does NOT append the cells onto the existing collection of cells, this will wipe every cell and add the new cells. Use <see cref="AddInBulkCells(IEnumerable{TableCell})"/> for adding many cells.
 		/// </summary>
 		/// <param name="cells">The cells to load, the only cells which will be present in the table.</param>
-		public void Load(ICollection<TableCell> cells)
+		public void Load(ICollection<TCell> cells)
 		{
-			Cells = new ObservableCollection<TableCell>(cells);
+			Cells = new ObservableCollection<TCell>(cells);
 		}
 
 		/// <summary>
@@ -269,7 +247,7 @@ namespace TableToImageExport.TableStructure
 			string[] properties = order.Split('.');
 			Type objectType = typeof(T);
 
-			List<TableCell> cells = new();
+			List<TCell> cells = new();
 
 			for (int r = 0; r < objects.Count; r++)
 			{
@@ -282,11 +260,7 @@ namespace TableToImageExport.TableStructure
 
 					ITableContent cellContent = TableContent.Utilities.GetContentFromObject(propertyObject);
 
-					TableCell cell = new(this)
-					{
-						TablePosition = new Vector2I(column + startAt.X, r + startAt.Y),
-						Content = cellContent
-					};
+					TCell cell = CreateNewCell(new Vector2I(column + startAt.X, r + startAt.Y), cellContent);
 
 					cells.Add(cell);
 					column++;
@@ -295,14 +269,14 @@ namespace TableToImageExport.TableStructure
 
 			cells.AddRange(Cells);
 
-			Cells = new ObservableCollection<TableCell>(cells);
+			Cells = new ObservableCollection<TCell>(cells);
 		}
 
 		/// <summary>
 		/// Adds cells in bulk to <see cref="Cells"/>, use this instead of manually adding items to <see cref="Cells"/> for better performance.
 		/// </summary>
 		/// <param name="cells">The cells to add.</param>
-		public void AddInBulkCells(IEnumerable<TableCell> cells)
+		public void AddInBulkCells(IEnumerable<TCell> cells)
 		{
 			// Causes table collections (TableRow and TableColumn) to temporarily pause refreshing to improve performance.
 			suppressRefresh = true;
@@ -319,8 +293,9 @@ namespace TableToImageExport.TableStructure
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TableCell})"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell with the given content which has a set of default configuration values.</returns>
-		public TableCell CreateNewCell(Vector2I position, ITableContent content = null) => new(this)
+		public TCell CreateNewCell(Vector2I position, ITableContent content = null) => new TCell()
 		{
+			Parent = this,
 			TablePosition = position,
 			Content = content
 		};
@@ -332,23 +307,21 @@ namespace TableToImageExport.TableStructure
 		/// This will set the content to the provided string.
 		/// </summary>
 		/// <returns>A new cell with the given content which has a set of default configuration values.</returns>
-		public TableCell CreateNewCell(Vector2I position, string content) => CreateNewCell(position, new TextContent(content));
+		public TCell CreateNewCell(Vector2I position, string content) => CreateNewCell(position, new TextContent(content));
 
 		/// <summary>
 		/// Creates a new cell located within this table.<br/><br/>
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TableCell})"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell located within the table.</returns>
-		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new(this, tablePosition, data, contentAlignment, cellSize, BG);
-		/// <summary>
-		/// Updates each <see cref="TableRow"/> and <see cref="TableColumn"/> by their .Refresh() methods (provided in <see cref="ITableCollection.Refresh()"/>)
-		/// </summary>
-		/// <param name="cellChanged"></param>
-		/// <param name="e"></param>
-		internal void TableStructureChanged_Event(TableCell cellChanged, TableStructureChangedEventArgs e)
+		public TCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new()
 		{
-			TableCollectionInvalidated?.Invoke();
-		}
+			Parent = this,
+			TablePosition = tablePosition,
+			Content = data,
+			ContentAlignment = contentAlignment.GetValueOrDefault(ItemAlignment.CentreLeft),
+			BG = BG.GetValueOrDefault(Cell.DefaultBG)
+		};
 		/// <summary>
 		/// Updates each <see cref="TableRow"/> and <see cref="TableColumn"/> object linked to this table as well as checking if the newly added cells
 		/// </summary>
@@ -360,11 +333,11 @@ namespace TableToImageExport.TableStructure
 			{
 				foreach (object item in e.NewItems)
 				{
-					TableCell cell = (TableCell)item;
+					TCell cell = (TCell)item;
 
 					if (!cell.Parent.Equals(this))
 					{
-						throw new TableMismatchException(cell, this);
+						throw new TableMismatchException<TCell>(cell, this);
 					}
 				}
 			}

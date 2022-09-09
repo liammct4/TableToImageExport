@@ -48,10 +48,13 @@ namespace TableToImageExport.TableStructure
 	/// </summary>
 	public abstract class Table<TCell> : Table where TCell : Cell, new()
 	{
+		internal const string ERR_UNINITIALIZED_CELL_MESSAGE = "A cell within this table was uninitialized, meaning that it was manually created from a constructor, cells cannot be manually created from a constructor and should instead be created by the CreateNewCell() method.";
+
 		/// <summary>
 		/// Default Property: Used on property <see cref="BorderColour"/> when no value is provided.
 		/// </summary>
 		public static Color DefaultBorderColour = Color.Black;
+
 		/// <summary>
 		/// Stores every cell within the table, the table is structured per cell (see <see cref="TableCell.TablePosition"/>) so the order of the list does not matter. Changes made to this list will update any <see cref="TableColumn"/> and <see cref="TableRow"/> automatically.<br/><br/>
 		/// Do not add to this manually if there are many <see cref="ITableCollection"/> objects, use other methods such as <see cref="Load(ICollection{TableCell})"/> or 
@@ -73,7 +76,11 @@ namespace TableToImageExport.TableStructure
 				// Check that the cell belongs to this table.
 				foreach (TCell cell in value)
 				{
-					if (!cell.Parent.Equals(this))
+					if (!cell.IsInitialized)
+					{
+						throw new InvalidOperationException(ERR_UNINITIALIZED_CELL_MESSAGE);
+					}
+					else if (!cell.Parent.Equals(this))
 					{
 						throw new TableMismatchException<TCell>(cell, this);
 					}
@@ -85,6 +92,7 @@ namespace TableToImageExport.TableStructure
 				InvokeTableCollectionInvalidate();
 			}
 		}
+
 		/// <summary>
 		/// Gets the width and length of the table in terms of the number of rows and columns.
 		/// </summary>
@@ -113,10 +121,12 @@ namespace TableToImageExport.TableStructure
 				};
 			}
 		}
+
 		/// <summary>
 		/// When exporting the table, this will determine the colour of the borders of each cell.
 		/// </summary>
 		public Color BorderColour { get; set; } = DefaultBorderColour;
+
 		/// <summary>
 		/// Returns the cell according to the <paramref name="row"/> and <paramref name="column"/>.<br/><br/>
 		/// 
@@ -130,6 +140,7 @@ namespace TableToImageExport.TableStructure
 			get => this[new Vector2I(column, row)];
 			set => this[new Vector2I(column, row)] = value;
 		}
+
 		/// <summary>
 		/// Returns the cell according to <paramref name="position"/>.<br/><br/>
 		/// 
@@ -171,6 +182,7 @@ namespace TableToImageExport.TableStructure
 		}
 		private ObservableCollection<TCell> _cells;
 		internal bool suppressRefresh;
+
 		/// <summary>
 		/// Loads data from a CSV/TSV file.
 		/// </summary>
@@ -224,9 +236,15 @@ namespace TableToImageExport.TableStructure
 		/// Loads a list of created cells. This does NOT append the cells onto the existing collection of cells, this will wipe every cell and add the new cells. Use <see cref="AddInBulkCells(IEnumerable{TableCell})"/> for adding many cells.
 		/// </summary>
 		/// <param name="cells">The cells to load, the only cells which will be present in the table.</param>
+		/// <exception cref="InvalidOperationException">Thrown if a cell is uninitialized.</exception>
 		public void Load(ICollection<TCell> cells)
 		{
 			Cells = new ObservableCollection<TCell>(cells);
+
+			if (!ValidateCells())
+			{
+				throw new InvalidOperationException(ERR_UNINITIALIZED_CELL_MESSAGE);
+			}
 		}
 
 		/// <summary>
@@ -288,21 +306,28 @@ namespace TableToImageExport.TableStructure
 			suppressRefresh = false;
 			TableStructureChanged_Event(null, null);
 		}
+
 		/// <summary>
 		/// Creates a new cell located within this table, with no parameters the cell is given default values as static members of <see cref="TableCell"/>.<br/><br/>
 		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TableCell})"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell with the given content which has a set of default configuration values.</returns>
-		public TCell CreateNewCell(Vector2I position, ITableContent content = null) => new TCell()
+		public TCell CreateNewCell(Vector2I position, ITableContent content = null)
 		{
-			Parent = this,
-			TablePosition = position,
-			Content = content
-		};
+			TCell newCell = new TCell()
+			{
+				TablePosition = position,
+				Content = content
+			};
+			
+			newCell.Initialize(this);
+
+			return newCell;
+		}
 
 		/// <summary>
-		/// Creates a new cell located within this table, with no parameters the cell is given default values as static members of <see cref="TableCell"/>.<br/><br/>
-		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TableCell})"/> method to load a list of newly created cells.
+		/// Creates a new cell located within this table, with no parameters the cell is given default values as static members of <typeparamref name="TCell"/> and <see cref="Cell"/>.<br/><br/>
+		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TCell})"/> method to load a list of newly created cells.
 		/// 
 		/// This will set the content to the provided string.
 		/// </summary>
@@ -311,21 +336,46 @@ namespace TableToImageExport.TableStructure
 
 		/// <summary>
 		/// Creates a new cell located within this table.<br/><br/>
-		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TableCell})"/> method to load a list of newly created cells.
+		/// The cell has to be manually added to the table via <see cref="Cells"/>, consider using the <see cref="Load(ICollection{TCell})"/> method to load a list of newly created cells.
 		/// </summary>
 		/// <returns>A new cell located within the table.</returns>
-		public TCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null) => new()
+		public TCell CreateNewCell(Vector2I tablePosition, ITableContent data, ItemAlignment? contentAlignment = null, Color? BG = null)
 		{
-			Parent = this,
-			TablePosition = tablePosition,
-			Content = data,
-			ContentAlignment = contentAlignment.GetValueOrDefault(ItemAlignment.CentreLeft),
-			BG = BG.GetValueOrDefault(Cell.DefaultBG)
-		};
+			TCell newCell = new TCell()
+			{
+				TablePosition = tablePosition,
+				Content = data,
+				ContentAlignment = contentAlignment.GetValueOrDefault(ItemAlignment.CentreLeft),
+				BG = BG.GetValueOrDefault(Cell.DefaultBG)
+			};
+
+			newCell.Initialize(this);
+
+			return newCell;
+		}
+
+		/// <summary>
+		/// Determines if every cell within the table has been initialized. Returns <see langword="true"/> if every cell has been initialized, otherwise <see langword="false"/>.
+		/// </summary>
+		/// <returns><see langword="true"/> if every cell has been initialized, otherwise <see langword="false"/></returns>
+		protected private bool ValidateCells()
+		{
+			foreach (TCell cell in Cells)
+			{
+				if (!cell.IsInitialized)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
 		/// <summary>
 		/// Updates each <see cref="TableRow"/> and <see cref="TableColumn"/> object linked to this table as well as checking if the newly added cells
 		/// </summary>
-		/// <exception cref="TableMismatchException">Thrown when any newly added items to the list <see cref="Cells"/> belongs to the wrong table.</exception>
+		/// <exception cref="TableMismatchException{T}">Thrown when any newly added items to the list <see cref="Cells"/> belongs to the wrong table.</exception>
+		/// <exception cref="InvalidOperationException">Thrown if a cell is uninitialized.</exception>
 		internal void Cells_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			// Check that the new cells belong to this table.
@@ -335,7 +385,11 @@ namespace TableToImageExport.TableStructure
 				{
 					TCell cell = (TCell)item;
 
-					if (!cell.Parent.Equals(this))
+					if (!cell.IsInitialized)
+					{
+						throw new InvalidOperationException(ERR_UNINITIALIZED_CELL_MESSAGE);
+					}
+					else if (!cell.Parent.Equals(this))
 					{
 						throw new TableMismatchException<TCell>(cell, this);
 					}
@@ -343,7 +397,7 @@ namespace TableToImageExport.TableStructure
 			}
 
 			// Unnecessarily refreshing each ITableCollection can become very performance intensive so whenever data needs to be added in bulk, wait until the data has been added then refresh.
-			if (suppressRefresh)
+			if (!suppressRefresh)
 			{
 				// Updates each linked TableRow and TableColumn linked to the table. This will notify each TableRow and TableColumn object to call their own Refresh() methods. (Provided in the interface ITableCollection interface).
 				TableStructureChanged_Event(null, null);

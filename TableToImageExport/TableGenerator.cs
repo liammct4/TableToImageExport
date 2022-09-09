@@ -117,8 +117,17 @@ namespace TableToImageExport
 		/// This is useful as if you want to set a universal property for every cell on a row (such as <see cref="TableCell.BG"/>) you can set <see cref="TableRow.RowBG"/> which will update each cell's BG property on that row.
 		/// </summary>
 		/// <param name="rowNumber">The row to retrieve.</param>
+		/// <exception cref="InvalidOperationException">Thrown if a cell is uninitialized.</exception>
 		/// <returns>An iterable collection of cells where each cell is on the row according to <see cref="TableRow.RowNumber"/></returns>
-		public TableRow GetRow(int rowNumber) => TableRow.FromTable(this, rowNumber);
+		public TableRow GetRow(int rowNumber)
+		{
+			if (!ValidateCells())
+			{
+				throw new InvalidOperationException(ERR_UNINITIALIZED_CELL_MESSAGE);
+			}
+
+			return TableRow.FromTable(this, rowNumber);
+		}
 
 		/// <summary>
 		/// Gets a collection of cells apart of this table where the cells are in column <paramref name="columnNumber"/>.<br/>
@@ -128,8 +137,17 @@ namespace TableToImageExport
 		/// This is useful as if you want to set a universal property for every cell in a column (such as <see cref="TableCell.CellSize"/> width) you can set <see cref="TableColumn.Width"/> which will update each cell's width to be the value provided.
 		/// </summary>
 		/// <param name="columnNumber">The column to retrieve</param>
+		/// <exception cref="InvalidOperationException">Thrown if a cell is uninitialized.</exception>
 		/// <returns>An iterable collection of cells where each cell is in the column according to <see cref="TableColumn.ColumnNumber"/></returns>
-		public TableColumn GetColumn(int columnNumber) => TableColumn.FromTable(this, columnNumber);
+		public TableColumn GetColumn(int columnNumber)
+		{
+			if (!ValidateCells())
+			{
+				throw new InvalidOperationException(ERR_UNINITIALIZED_CELL_MESSAGE);
+			}
+
+			return TableColumn.FromTable(this, columnNumber);
+		}
 
 		/// <summary>
 		/// Removes missing spaces in the table. If there are gaps within the table, empty cells will be added so that there is a visible cell at each position.
@@ -284,9 +302,15 @@ namespace TableToImageExport
 		/// <summary>
 		/// Produces an image of the table in full. Returns a <see cref="Image"/> object which can then be used for any other purpose such as saving directly to a file or placing onto an existing image.
 		/// </summary>
+		/// <exception cref="InvalidOperationException">Thrown if a cell is uninitialized.</exception>
 		/// <returns>A bitmap object which is the table visualized as an image.</returns>
 		public Image<Argb32> ExportTableToImage()
 		{
+			if (!ValidateCells())
+			{
+				throw new InvalidOperationException(ERR_UNINITIALIZED_CELL_MESSAGE);
+			}
+
 			// Precache the appropriate information about the table as these are very complicated. Use instead of directly accessing property.
 			Section tableSize = TableSize;
 			SizeF tableDimensions = TableDimensions;
@@ -363,9 +387,15 @@ namespace TableToImageExport
 		/// <param name="tableClassName">The class name which the produced table will be named as.</param>
 		/// <param name="resourcePath">The folder location where resources (such as images) will be stored.</param>
 		/// <param name="indentLevel">The indent level which the table will start at.</param>
+		/// <exception cref="InvalidOperationException">Thrown if a cell is uninitialized.</exception>
 		/// <returns>The raw html snippet.</returns>
 		public string ExportTableToHtml(string tableClassName, string resourcePath, int indentLevel = 0)
 		{
+			if (!ValidateCells())
+			{
+				throw new InvalidOperationException(ERR_UNINITIALIZED_CELL_MESSAGE);
+			}
+
 			if (!Directory.Exists(resourcePath))
 			{
 				throw new DirectoryNotFoundException($"The resource path ({resourcePath}) provided does not exist.");
@@ -460,6 +490,27 @@ namespace TableToImageExport
 			StringBuilder joinedHtml = styleSb.Append(tableSb);
 
 			return joinedHtml.ToString();
+		}
+
+		/// <summary>
+		/// Creates a new cell located within this table.<br/><br/>
+		/// The cell has to be manually added to the table via <see cref="Table{TableCell}.Cells"/>, consider using the <see cref="Table{TableCell}.Load(ICollection{TableCell})"/> method to load a list of newly created cells.
+		/// </summary>
+		/// <returns>A new cell located within the table.</returns>
+		public TableCell CreateNewCell(Vector2I tablePosition, ITableContent data, Size cellSize, ItemAlignment? contentAlignment = null, Color? BG = null)
+		{
+			TableCell newCell = new()
+			{
+				TablePosition = tablePosition,
+				Content = data,
+				CellSize = cellSize,
+				ContentAlignment = contentAlignment.GetValueOrDefault(ItemAlignment.CentreLeft),
+				BG = BG.GetValueOrDefault(Cell.DefaultBG)
+			};
+
+			newCell.Initialize(this);
+
+			return newCell;
 		}
 	}
 }

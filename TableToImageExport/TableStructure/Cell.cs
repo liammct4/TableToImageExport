@@ -72,7 +72,7 @@ namespace TableToImageExport.TableStructure
 		/// <summary>
 		/// If this cell has been initialized. Set after <see cref="Initialize(Table)"/> is called, a cell can only be initialized once.
 		/// </summary>
-		protected private bool IsInitialized { get; set; }
+		internal bool IsInitialized { get; private set; }
 		protected internal Cell Initialize(Table parent)
 		{
 			Parent = parent;

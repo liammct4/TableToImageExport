@@ -94,9 +94,18 @@ namespace TableToImageExport.TableStructure
 		}
 
 		/// <summary>
+		/// Creates a new empty table.
+		/// </summary>
+		public Table()
+		{
+			Cells = new ObservableCollection<TCell>();
+			Cells.CollectionChanged += Cells_CollectionChanged;
+		}
+
+		/// <summary>
 		/// Gets the width and length of the table in terms of the number of rows and columns.
 		/// </summary>
-		public Section TableSize
+		public Section TableArea
 		{
 			get
 			{

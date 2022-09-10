@@ -101,7 +101,7 @@ namespace TableToImageExport.TableContent.ContentStructure
 		{
 			HorizontalAlign.Left => 0 + Margin.X,
 			HorizontalAlign.Centre => (containerWidth / 2) - (objectWidth / 2),
-			HorizontalAlign.Right => containerWidth - (objectWidth + Margin.X),
+			HorizontalAlign.Right => (containerWidth - (objectWidth + Margin.X)) + 1,
 			_ => 0,
 		};
 
@@ -109,7 +109,7 @@ namespace TableToImageExport.TableContent.ContentStructure
 		{
 			VerticalAlign.Top => 0 + Margin.Y,
 			VerticalAlign.Centre => (containerHeight / 2) - (objectHeight / 2),
-			VerticalAlign.Bottom => containerHeight - (objectHeight + Margin.Y),
+			VerticalAlign.Bottom => (containerHeight - (objectHeight + Margin.Y)) + 1,
 			_ => 0,
 		};
 

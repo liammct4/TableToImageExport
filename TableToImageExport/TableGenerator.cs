@@ -49,7 +49,7 @@ namespace TableToImageExport
 		{
 			get
 			{
-				Section tableSize = TableSize;
+				Section tableSize = TableArea;
 				SizeF dimensions = SizeF.Empty;
 
 				for (int c = tableSize.Left; c <= tableSize.Right; c++)
@@ -83,13 +83,13 @@ namespace TableToImageExport
 				return dimensions;
 			}
 		}
+
 		/// <summary>
 		/// Creates a new empty table. Use the load methods or manually add data to populate this table.
 		/// </summary>
 		public TableGenerator()
 		{
-			Cells = new ObservableCollection<TableCell>();
-			Cells.CollectionChanged += Cells_CollectionChanged;
+		
 		}
 
 		/// <summary>
@@ -156,7 +156,7 @@ namespace TableToImageExport
 		public ICollection<TableCell> FillMissingGaps()
 		{
 			// This will fill in all spaces between column 0 to column at tableSize.X and row 0 to row at tableSize.Y.
-			Section tableSize = TableSize;
+			Section tableSize = TableArea;
 			List<TableCell> addedCells = new();
 
 			for (int c = tableSize.Left; c <= tableSize.Right; c++)
@@ -213,7 +213,7 @@ namespace TableToImageExport
 				throw new FormatException($"An argument provided contained an argument which was negative. Only positive numbers are allowed. {(overflow < 0 ? $"{nameof(overflow)} was {overflow}" : $"{nameof(minimumWidth)} was {minimumWidth}.")}");
 			}
 
-			Section tableSize = TableSize;
+			Section tableSize = TableArea;
 
 			for (int c = tableSize.Left; c <= tableSize.Right; c++)
 			{
@@ -245,7 +245,7 @@ namespace TableToImageExport
 				throw new FormatException($"An argument provided contained an argument which was negative. Only positive numbers are allowed. {(overflow < 0 ? $"{nameof(overflow)} was {overflow}" : $"{nameof(minimumHeight)} was {minimumHeight}.")}");
 			}
 
-			Section tableSize = TableSize;
+			Section tableSize = TableArea;
 
 			for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 			{
@@ -278,7 +278,7 @@ namespace TableToImageExport
 			secondary = secondary is null ? new Argb32(250, 250, 255) : secondary;
 
 			// Precache the table size.
-			Section tableSize = TableSize;
+			Section tableSize = TableArea;
 
 			for (int i = rowStartAt; i <= tableSize.Bottom; i++)
 			{
@@ -312,14 +312,14 @@ namespace TableToImageExport
 			}
 
 			// Precache the appropriate information about the table as these are very complicated. Use instead of directly accessing property.
-			Section tableSize = TableSize;
+			Section tableSize = TableArea;
 			SizeF tableDimensions = TableDimensions;
 
 			// Since we know the direct pixel dimensions of the table, the bitmap can be created right away and be written to using the Graphics class.
 			Image<Argb32> image = new((int)tableDimensions.Width + 1, (int)tableDimensions.Height + 1);
 
 			// Precache all the rows of the table as these only need to be got once instead of through every column iteration.
-			TableRow[] rows = Enumerable.Range(0, TableSize.Bottom + 1).Select(i => GetRow(i)).ToArray();
+			TableRow[] rows = Enumerable.Range(0, TableArea.Bottom + 1).Select(i => GetRow(i)).ToArray();
 			
 			int accumulatedWidth = 0;
 			for (int c = tableSize.Left; c <= tableSize.Right; c++)
@@ -432,7 +432,7 @@ namespace TableToImageExport
 			StringBuilder tableSb = new($"{indentBase}<table class=\"{tableClassName}\">\n");
 
 			// Precache the table size since this is a time consuming operation.
-			Section tableSize = TableSize;
+			Section tableSize = TableArea;
 
 			for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 			{

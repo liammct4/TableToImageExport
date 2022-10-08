@@ -91,37 +91,76 @@ namespace TableToImageExport.TableContent
 			}
 
 			Section tableSize = TableArea;
-			int columnCount = Math.Abs(TableArea.Left - tableSize.Right) + 1;
+			int columnCount = Math.Abs(tableSize.Left - tableSize.Right) + 1;
 			int rowCount = Math.Abs(tableSize.Top - tableSize.Bottom) + 1;
+			int tableRowCount = tableSize.Bottom - tableSize.Top;
+			int tableColumnCount = tableSize.Right - tableSize.Left;
 
-			int columnWidth, rowHeight;
+			RectangleF subTableArea = new()
+			{
+				X = position.X,
+				Y = position.Y,
+				Width = AutoSize ? position.Width - 1 : TableSize.Width,
+				Height = AutoSize ? position.Height - 1 : TableSize.Height
+			};
 
-			if (AutoSize)
+			int baseColumnWidth = (int)(subTableArea.Width / columnCount);
+			int baseRowHeight = (int)(subTableArea.Height / rowCount);
+
+			// Sort the cells into a 2d array.
+			List<List<SubTableCell>> rowCols = new List<List<SubTableCell>>();
+
+			for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 			{
-				columnWidth = ((int)position.Width / columnCount) + (1);
-				rowHeight = ((int)position.Height / rowCount) + (1);
-			}
-			else
-			{
-				columnWidth = TableSize.Width / columnCount;
-				rowHeight = TableSize.Height / rowCount;
+				rowCols.Add(new List<SubTableCell>());
 			}
 
 			foreach (SubTableCell cell in Cells)
 			{
-				int columnMultiplier = cell.TablePosition.X - tableSize.Left;
-				int rowMultiplier = cell.TablePosition.Y - tableSize.Top;
+				rowCols[cell.TablePosition.Y - tableSize.Top].Add(cell);
+			}
 
-				Rectangle cellArea = new()
+			int accumulatedHeight = 0;
+
+			for (int r = 0; r < rowCols.Count; r++)
+			{
+				int accumulatedWidth = 0;
+				float remainingPixelHeight = subTableArea.Height - accumulatedHeight;
+				int remainingRowCount = tableRowCount - (r - 1);
+				int rowHeight = (int)(remainingPixelHeight / remainingRowCount);
+
+				if (rowHeight == int.MinValue)
 				{
-					X = (int)(position.X + (columnMultiplier * columnWidth)) - (1 * columnMultiplier),
-					Y = (int)(position.Y + (rowMultiplier * rowHeight)) - (1 * rowMultiplier),
-					Width = columnWidth,
-					Height = rowHeight
+					rowHeight = baseRowHeight;
+				}
+
+				for (int c = 0; c < rowCols[r].Count; c++)
+				{
+					SubTableCell cell = rowCols[r][c];
+					float remainingPixelWidth = (subTableArea.Width - accumulatedWidth);
+					float remainingColumnCount = (tableColumnCount - (c - 1));
+					int columnWidth = (int)(remainingPixelWidth / remainingColumnCount);
+
+					if (columnWidth == int.MinValue)
+					{
+						columnWidth = baseColumnWidth;
+					}
+
+					Rectangle cellArea = new()
+					{
+						X = (int)(subTableArea.X + accumulatedWidth),
+						Y = (int)(subTableArea.Y + accumulatedHeight),
+						Width = columnWidth + 1,
+						Height = rowHeight + 1
+					};
+
+					graphics.DrawRoundedBox(cellArea, new Argb32(0, 0, 0, 0), new Bounds(0), BorderColour);
+					cell.Content.WriteContentToImage(graphics, cellArea);
+
+					accumulatedWidth += columnWidth;
 				};
 
-				graphics.DrawRoundedBox(cellArea, new Argb32(0, 0, 0, 0), new Bounds(0), BorderColour);
-				cell.Content.WriteContentToImage(graphics, cellArea);
+				accumulatedHeight += rowHeight;
 			}
 		}
 	}

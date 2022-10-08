@@ -146,16 +146,20 @@ namespace TableToImageExport.TableContent
 						columnWidth = baseColumnWidth;
 					}
 
-					Rectangle cellArea = new()
+					Point cellCoordinates = new Point((int)(subTableArea.X + accumulatedWidth), (int)(subTableArea.Y + accumulatedHeight));
+					Size cellSize = new Size(columnWidth + 1, rowHeight + 1);
+					Rectangle cellArea = new(cellCoordinates, cellSize);
+
+					SizeF contentSize = cell.Content.GetContentSize(cellSize);
+					Point relativeCellPosition = cell.ContentAlignment.Align(cellSize, contentSize);
+					Point contentPosition = new()
 					{
-						X = (int)(subTableArea.X + accumulatedWidth),
-						Y = (int)(subTableArea.Y + accumulatedHeight),
-						Width = columnWidth + 1,
-						Height = rowHeight + 1
+						X = cellCoordinates.X + relativeCellPosition.X,
+						Y = cellCoordinates.Y + relativeCellPosition.Y
 					};
 
 					graphics.DrawRoundedBox(cellArea, new Argb32(0, 0, 0, 0), new Bounds(0), BorderColour);
-					cell.Content.WriteContentToImage(graphics, cellArea);
+					cell.Content.WriteContentToImage(graphics, new Rectangle(contentPosition, cellSize));
 
 					accumulatedWidth += columnWidth;
 				};

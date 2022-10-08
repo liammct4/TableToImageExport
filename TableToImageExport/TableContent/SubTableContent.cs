@@ -3,6 +3,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -108,21 +109,21 @@ namespace TableToImageExport.TableContent
 			int baseRowHeight = (int)(subTableArea.Height / rowCount);
 
 			// Sort the cells into a 2d array.
-			List<List<SubTableCell>> rowCols = new List<List<SubTableCell>>();
+			List<SubTableCell[]> rowCols = new List<SubTableCell[]>();
 
 			for (int r = tableSize.Top; r <= tableSize.Bottom; r++)
 			{
-				rowCols.Add(new List<SubTableCell>());
+				rowCols.Add(new SubTableCell[tableColumnCount + 1]);
 			}
 
 			foreach (SubTableCell cell in Cells)
 			{
-				rowCols[cell.TablePosition.Y - tableSize.Top].Add(cell);
+				rowCols[cell.TablePosition.Y - tableSize.Top][cell.TablePosition.X] = cell;
 			}
 
 			int accumulatedHeight = 0;
 
-			for (int r = 0; r < rowCols.Count; r++)
+			for (int r = 0; r <= tableRowCount; r++)
 			{
 				int accumulatedWidth = 0;
 				float remainingPixelHeight = subTableArea.Height - accumulatedHeight;
@@ -134,9 +135,8 @@ namespace TableToImageExport.TableContent
 					rowHeight = baseRowHeight;
 				}
 
-				for (int c = 0; c < rowCols[r].Count; c++)
+				for (int c = 0; c <= tableColumnCount; c++)
 				{
-					SubTableCell cell = rowCols[r][c];
 					float remainingPixelWidth = (subTableArea.Width - accumulatedWidth);
 					float remainingColumnCount = (tableColumnCount - (c - 1));
 					int columnWidth = (int)(remainingPixelWidth / remainingColumnCount);
@@ -146,20 +146,25 @@ namespace TableToImageExport.TableContent
 						columnWidth = baseColumnWidth;
 					}
 
-					Point cellCoordinates = new Point((int)(subTableArea.X + accumulatedWidth), (int)(subTableArea.Y + accumulatedHeight));
-					Size cellSize = new Size(columnWidth + 1, rowHeight + 1);
-					Rectangle cellArea = new(cellCoordinates, cellSize);
-
-					SizeF contentSize = cell.Content.GetContentSize(cellSize);
-					Point relativeCellPosition = cell.ContentAlignment.Align(cellSize, contentSize);
-					Point contentPosition = new()
+					// Null spaces still have to be accounted for in their position, but no actual cell is added.
+					if (rowCols[r][c] is not null)
 					{
-						X = cellCoordinates.X + relativeCellPosition.X,
-						Y = cellCoordinates.Y + relativeCellPosition.Y
-					};
+						SubTableCell cell = rowCols[r][c];
+						Point cellCoordinates = new Point((int)(subTableArea.X + accumulatedWidth), (int)(subTableArea.Y + accumulatedHeight));
+						Size cellSize = new Size(columnWidth + 1, rowHeight + 1);
+						Rectangle cellArea = new(cellCoordinates, cellSize);
 
-					graphics.DrawRoundedBox(cellArea, new Argb32(0, 0, 0, 0), new Bounds(0), BorderColour);
-					cell.Content.WriteContentToImage(graphics, new Rectangle(contentPosition, cellSize));
+						SizeF contentSize = cell.Content.GetContentSize(cellSize);
+						Point relativeCellPosition = cell.ContentAlignment.Align(cellSize, contentSize);
+						Point contentPosition = new()
+						{
+							X = cellCoordinates.X + relativeCellPosition.X,
+							Y = cellCoordinates.Y + relativeCellPosition.Y
+						};
+
+						graphics.DrawRoundedBox(cellArea, new Argb32(0, 0, 0, 0), new Bounds(0), BorderColour);
+						cell.Content.WriteContentToImage(graphics, new Rectangle(contentPosition, cellSize));
+					}
 
 					accumulatedWidth += columnWidth;
 				};

@@ -76,7 +76,25 @@ namespace TableToImageExport.TableContent
 		/// <returns>A html snippet of this table.</returns>
 		public string WriteContentToHtml(string resourcePath)
 		{
-			throw new NotImplementedException();
+			Section tableArea = TableArea;
+			StringBuilder table = new("<table>\n");
+			
+			for (int r = tableArea.Top; r < tableArea.Bottom; r++)
+			{
+				table.Append("<tr>\n");
+
+				for (int c = tableArea.Left; c < tableArea.Right; c++)
+				{
+					SubTableCell cell = this[c, r];
+					table.Append($"<td style=\"background-color: {cell.BG}\"></td>");
+				}
+
+				table.Append("</tr>\n");
+			}
+
+			table.Append("</table>");
+
+			return table.ToString();
 		}
 
 		/// <summary>

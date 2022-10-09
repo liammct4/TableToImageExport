@@ -77,7 +77,19 @@ namespace TableToImageExport.TableContent
 		public string WriteContentToHtml(string resourcePath)
 		{
 			Section tableArea = TableArea;
-			StringBuilder table = new("<table>\n");
+
+			string sizing = "width: {0}; height: {1};";
+
+			if (AutoSize)
+			{
+				sizing = string.Format(sizing, "100%", "100%");
+			}
+			else
+			{
+				sizing = string.Format(sizing, $"{TableSize.Width}px", $"{TableSize.Height}px");
+			}
+
+			StringBuilder table = new($"<table style=\"{sizing}\">\n");
 			
 			for (int r = tableArea.Top; r < tableArea.Bottom; r++)
 			{

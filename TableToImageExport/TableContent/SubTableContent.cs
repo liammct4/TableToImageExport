@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TableToImageExport.DataStructures;
 using TableToImageExport.ImageData;
+using TableToImageExport.TableContent.ContentStructure;
 using TableToImageExport.TableStructure;
 
 namespace TableToImageExport.TableContent
@@ -90,28 +91,28 @@ namespace TableToImageExport.TableContent
 			}
 
 			StringBuilder table = new StringBuilder().Append($"<table style=\"{sizing} border-spacing: 0;\">\n");
-			
-			for (int r = tableArea.Top; r < tableArea.Bottom; r++)
+
+			for (int r = tableArea.Top; r <= tableArea.Bottom; r++)
 			{
 				table.Append("<tr>\n");
 
-				for (int c = tableArea.Left; c < tableArea.Right; c++)
+				for (int c = tableArea.Left; c <= tableArea.Right; c++)
 				{
 					SubTableCell cell = this[c, r];
 
-					table.Append($"<td style=\"background-color: {cell.BG};");
+					table.Append($"<td style=\"{cell.ContentAlignment.ToString(FormatType.CSS)} background-color: {cell.BG};");
 
-					if (c == tableArea.Right - 1)
+					if (c == tableArea.Right)
 					{
 						table.Append("border-right-color: transparent; ");
 					}
 
-					if (r == tableArea.Bottom - 1)
+					if (r == tableArea.Bottom)
 					{
 						table.Append("border-bottom-color: transparent; ");
 					}
 
-					table.Append("\"></td>");
+					table.Append($"\">{cell.Content.WriteContentToHtml(resourcePath)}</td>");
 				}
 
 				table.Append("</tr>\n");

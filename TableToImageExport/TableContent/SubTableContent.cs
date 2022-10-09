@@ -80,6 +80,7 @@ namespace TableToImageExport.TableContent
 			Section tableArea = TableArea;
 
 			string sizing = "width: {0}; height: {1};";
+			Argb32 borderColour = (Argb32)BorderColour;
 
 			if (AutoSize)
 			{
@@ -90,7 +91,7 @@ namespace TableToImageExport.TableContent
 				sizing = string.Format(sizing, $"{TableSize.Width}px", $"{TableSize.Height}px");
 			}
 
-			StringBuilder table = new StringBuilder().Append($"<table style=\"{sizing} border-spacing: 0;\">\n");
+			StringBuilder table = new StringBuilder().Append($"<table style=\"border-color: rgb({borderColour.R}, {borderColour.G}, {borderColour.B}); {sizing} border-spacing: 0;\">\n");
 
 			for (int r = tableArea.Top; r <= tableArea.Bottom; r++)
 			{
@@ -100,7 +101,7 @@ namespace TableToImageExport.TableContent
 				{
 					SubTableCell cell = this[c, r];
 
-					table.Append($"<td style=\"{cell.ContentAlignment.ToString(FormatType.CSS)} background-color: {cell.BG};");
+					table.Append($"<td style=\"{cell.ContentAlignment.ToString(FormatType.CSS)} border-color: rgb({borderColour.R}, {borderColour.G}, {borderColour.B}); background-color: {cell.BG};");
 
 					if (c == tableArea.Right)
 					{

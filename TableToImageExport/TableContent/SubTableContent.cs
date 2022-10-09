@@ -19,6 +19,7 @@ namespace TableToImageExport.TableContent
 	/// </summary>
 	public class SubTableContent : Table<SubTableCell>, ITableContent
 	{
+		public static int DefaultIndentLevel = 1;
 		/// <summary>
 		/// The size of the table in pixels. The table will be divided into equal columns and rows according to <see cref="Table{SubTableCell}.TableArea"/>.
 		/// 
@@ -30,6 +31,11 @@ namespace TableToImageExport.TableContent
 		/// Determines whether the table will automatically scale to the size of the cell when exporting, if <see langword="true"/>, <see cref="TableSize"/> will be ignored.
 		/// </summary>
 		public bool AutoSize { get; set; }
+
+		/// <summary>
+		/// Determines the indent level of the produced sub table.
+		/// </summary>
+		public int IndentLevel { get; set; } = DefaultIndentLevel;
 
 		/// <summary>
 		/// Creates a new sub table which will be autoscaled to the size of the parent cell when exporting.
@@ -81,6 +87,7 @@ namespace TableToImageExport.TableContent
 
 			string sizing = "width: {0}; height: {1};";
 			Argb32 borderColour = (Argb32)BorderColour;
+			string indent = new(Enumerable.Range(0, IndentLevel).Select(x => '\t').ToArray());
 
 			if (AutoSize)
 			{
@@ -91,17 +98,17 @@ namespace TableToImageExport.TableContent
 				sizing = string.Format(sizing, $"{TableSize.Width}px", $"{TableSize.Height}px");
 			}
 
-			StringBuilder table = new StringBuilder().Append($"<table style=\"border-color: rgb({borderColour.R}, {borderColour.G}, {borderColour.B}); {sizing} border-spacing: 0;\">\n");
+			StringBuilder table = new StringBuilder().Append($"{indent}<table style=\"border-color: rgb({borderColour.R}, {borderColour.G}, {borderColour.B}); {sizing} border-spacing: 0;\">\n");
 
 			for (int r = tableArea.Top; r <= tableArea.Bottom; r++)
 			{
-				table.Append("<tr>\n");
+				table.Append($"{indent}\t<tr>\n");
 
 				for (int c = tableArea.Left; c <= tableArea.Right; c++)
 				{
 					SubTableCell cell = this[c, r];
 
-					table.Append($"<td style=\"{cell.ContentAlignment.ToString(FormatType.CSS)} border-color: rgb({borderColour.R}, {borderColour.G}, {borderColour.B}); background-color: {cell.BG};");
+					table.Append($"{indent}\t\t<td style=\"{cell.ContentAlignment.ToString(FormatType.CSS)} border-color: rgb({borderColour.R}, {borderColour.G}, {borderColour.B}); background-color: {cell.BG};");
 
 					if (c == tableArea.Right)
 					{
@@ -116,10 +123,10 @@ namespace TableToImageExport.TableContent
 					table.Append($"\">{cell.Content.WriteContentToHtml(resourcePath)}</td>");
 				}
 
-				table.Append("</tr>\n");
+				table.Append($"{indent}\t</tr>\n");
 			}
 
-			table.Append("</table>");
+			table.Append($"{indent}</table>");
 
 			return table.ToString();
 		}

@@ -98,7 +98,20 @@ namespace TableToImageExport.TableContent
 				for (int c = tableArea.Left; c < tableArea.Right; c++)
 				{
 					SubTableCell cell = this[c, r];
-					table.Append($"<td style=\"background-color: {cell.BG}\"></td>");
+
+					table.Append($"<td style=\"background-color: {cell.BG};");
+
+					if (c == tableArea.Right - 1)
+					{
+						table.Append("border-right-color: transparent; ");
+					}
+
+					if (r == tableArea.Bottom - 1)
+					{
+						table.Append("border-bottom-color: transparent; ");
+					}
+
+					table.Append("\"></td>");
 				}
 
 				table.Append("</tr>\n");

@@ -89,7 +89,7 @@ namespace TableToImageExport.TableContent
 				sizing = string.Format(sizing, $"{TableSize.Width}px", $"{TableSize.Height}px");
 			}
 
-			StringBuilder table = new($"<table style=\"{sizing}\">\n");
+			StringBuilder table = new StringBuilder().Append($"<table style=\"{sizing} border-spacing: 0;\">\n");
 			
 			for (int r = tableArea.Top; r < tableArea.Bottom; r++)
 			{

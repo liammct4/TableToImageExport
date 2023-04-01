@@ -337,7 +337,7 @@ namespace TableToImageExport
 					}
 
 					// Establish the basic information about the cell on the image used later to draw.
-					Point cellPixelCoordinates = new(accumulatedWidth + 1 - c, accumulatedHeight + 1 - addedRow++);
+					Point cellPixelCoordinates = new(accumulatedWidth + 1 - c, accumulatedHeight + 1 - (cell.TablePosition.Y - tableSize.Top));
 					Rectangle cellBounds = new(cellPixelCoordinates, cell.CellSize);
 					
 					Bounds corners = new()

@@ -134,6 +134,8 @@ namespace TableToImageExport.TableStructure
 				}
 			}
 		}
+		public int ColumnSpan => Cells.Max(x => x.ColumnSpan);
+
 		private List<TableCell> _cells;
 		private bool disposedValue;
 
